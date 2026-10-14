@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIPERA — Livro do Sistema</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+:root{
+    color-scheme:dark;
+    --fundo:#080807;
+    --fundo-2:#0e0d0b;
+    --painel:rgba(18,17,15,.86);
+    --borda:rgba(235,225,205,.09);
+    --borda-dourada:rgba(201,168,106,.27);
+    --dourado:#c9a86a;
+    --dourado-claro:#e3cc9d;
+    --texto:#e8e4dc;
+    --texto-2:#a9a49b;
+    --texto-3:#706b62;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{
+    margin:0;
+    min-height:100vh;
+    color:var(--texto);
+    font-family:"Inter",sans-serif;
+    background:
+        radial-gradient(ellipse at 51% -12%,rgba(201,168,106,.11),transparent 43%),
+        radial-gradient(ellipse at 8% 58%,rgba(132,104,62,.045),transparent 34%),
+        linear-gradient(180deg,#0b0a08 0%,#080807 68%,#0b0a09 100%);
+}
+body::before{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    content:"";
+    opacity:.18;
+    background-image: repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.018) 4px);
+}
+button{font:inherit;cursor:pointer}
+::selection{color:#100e0a;background:var(--dourado)}
+
+/* Abertura do livro */
+.abertura{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    background:#000;
+    opacity:1;
+    visibility:visible;
+    transition:opacity .9s ease,visibility .9s ease;
+}
+.abertura.encerrada{opacity:0;visibility:hidden;pointer-events:none}
+.abertura-conteudo{position:relative;display:grid;justify-items:center;gap:25px}
+.abertura-selo{position:relative;width:116px;height:116px;display:grid;place-items:center;color:var(--dourado-claro)}
+.abertura.em-curso .abertura-selo{animation:selo-surge 1.8s cubic-bezier(.2,.7,.2,1) both}
+.abertura-selo::before,.abertura-selo::after{position:absolute;inset:12px;border:1px solid rgba(201,168,106,.5);content:"";transform:rotate(45deg)}
+.abertura.em-curso .abertura-selo::before,.abertura.em-curso .abertura-selo::after{animation:linha-selo 1.9s ease both}
+.abertura-selo::after{inset:25px;border-color:rgba(201,168,106,.28);transform:rotate(0)}
+.abertura.em-curso .abertura-selo::after{animation-delay:.25s}
+.abertura-selo span{font-family:"Playfair Display",serif;font-size:36px;text-shadow:0 0 24px rgba(201,168,106,.55)}
+.abertura-regua{position:absolute;width:min(360px,70vw);height:1px;top:50%;left:50%;background:linear-gradient(90deg,transparent,rgba(201,168,106,.55),transparent);transform:translate(-50%,-50%) scaleX(0)}
+.abertura.em-curso .abertura-regua{animation:regua-abre 1.2s .65s ease-out forwards}
+.abertura-titulo{margin:0;color:#eee9df;font-family:"Playfair Display",serif;font-size:clamp(25px,5vw,42px);font-weight:600;letter-spacing:.42em;text-indent:.42em;text-shadow:0 0 35px rgba(201,168,106,.22);opacity:0}
+.abertura.em-curso .abertura-titulo{animation:titulo-abre 1.1s 1.25s ease forwards}
+.abertura-legenda{color:rgba(201,168,106,.56);font-size:8px;letter-spacing:.42em;text-transform:uppercase;opacity:0}
+.abertura.em-curso .abertura-legenda{animation:titulo-abre .8s 1.65s ease forwards}
+.particula{position:absolute;width:2px;height:2px;border-radius:50%;background:#dfbf7e;box-shadow:0 0 9px 2px rgba(201,168,106,.24);opacity:0}
+.abertura.em-curso .particula{animation:particula-sobe 3.1s ease-in-out infinite}
+.abertura.em-curso .particula:nth-child(1){left:18%;top:70%;animation-delay:.2s}
+.abertura.em-curso .particula:nth-child(2){left:76%;top:75%;animation-delay:1.1s}
+.abertura.em-curso .particula:nth-child(3){left:63%;top:25%;animation-delay:.7s}
+.abertura.em-curso .particula:nth-child(4){left:31%;top:32%;animation-delay:1.5s}
+.abertura.em-curso .particula:nth-child(5){left:86%;top:46%;animation-delay:2s}
+
+/* Cabeçalho */
+.topo{
+    position:sticky;
+    top:0;
+    z-index:20;
+    min-height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:12px max(28px,calc((100vw - 1320px)/2));
+    border-bottom:1px solid var(--borda);
+    background:rgba(9,9,8,.84);
+    backdrop-filter:blur(18px);
+}
+.logo{display:flex;align-items:center;gap:13px}
+.logo-mark{
+    position:relative;
+    width:34px;
+    height:34px;
+    display:grid;
+    place-items:center;
+    border:1px solid var(--borda-dourada);
+    transform:rotate(45deg);
+    color:var(--dourado-claro);
+    box-shadow:inset 0 0 12px rgba(201,168,106,.05),0 0 18px rgba(201,168,106,.04);
+}
+.logo-mark::after{position:absolute;inset:4px;border:1px solid rgba(201,168,106,.14);content:""}
+.logo-mark span{z-index:1;transform:rotate(-45deg);font-family:"Playfair Display",serif;font-size:16px}
+.logo-text{display:flex;flex-direction:column;gap:3px}
+.logo-text strong{color:#eee9df;font-family:"Playfair Display",serif;font-size:15px;letter-spacing:3.5px}
+.logo-text small{color:var(--texto-3);font-size:8px;letter-spacing:2.2px;text-transform:uppercase}
+.topo-acoes{display:flex;align-items:center;gap:10px}
+.btn{
+    padding:9px 15px;
+    border:1px solid var(--borda);
+    background:rgba(255,255,255,.025);
+    color:#bdb7ac;
+    font-size:9px;
+    letter-spacing:1.8px;
+    text-transform:uppercase;
+    transition:color .25s,border-color .25s,background .25s;
+}
+.btn:hover,.btn:focus-visible{border-color:var(--borda-dourada);background:rgba(201,168,106,.06);color:var(--dourado-claro);outline:none}
+.musica-btn[aria-pressed="true"]{border-color:var(--borda-dourada);background:rgba(201,168,106,.08);color:var(--dourado-claro)}
+.topo-acoes{position:relative}
+
+/* Livro e navegação */
+.sumario-superior{min-width:0;min-height:44px;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px max(24px,calc((100vw - 1320px)/2));border-bottom:1px solid var(--borda);background:rgba(13,12,10,.72)}
+.sumario-superior a{flex:0 0 auto;padding:7px 10px;border-bottom:1px solid transparent;color:#8a857c;font-size:9px;letter-spacing:.7px;text-decoration:none;white-space:nowrap;transition:color .2s,border-color .2s,background .2s}
+.sumario-superior a:hover,.sumario-superior a:focus-visible{border-bottom-color:var(--dourado);background:rgba(201,168,106,.045);color:var(--dourado-claro);outline:none}
+.layout{
+    width:min(1280px,calc(100% - 48px));
+    min-height:calc(100vh - 72px);
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:224px minmax(0,1fr);
+    border-right:1px solid var(--borda);
+    border-left:1px solid var(--borda);
+}
+.sidebar{
+    position:sticky;
+    top:72px;
+    height:calc(100vh - 72px);
+    min-height:350px;
+    padding:34px 22px;
+    border-right:1px solid var(--borda);
+    background:linear-gradient(180deg,rgba(15,14,12,.72),rgba(10,10,9,.4));
+}
+.sidebar-label{display:block;margin-bottom:15px;color:var(--dourado);font-size:8px;letter-spacing:3px;text-transform:uppercase}
+.sidebar-linha{height:1px;margin-bottom:19px;background:linear-gradient(90deg,var(--borda-dourada),rgba(201,168,106,.03) 80%,transparent)}
+.nav-livro{display:grid;gap:5px}
+.nav-livro a{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    min-height:40px;
+    padding:0 10px;
+    border-left:1px solid transparent;
+    color:#8a857c;
+    font-size:10px;
+    letter-spacing:1.1px;
+    text-decoration:none;
+    transition:color .2s,border-color .2s,background .2s;
+}
+.nav-livro a span{color:#625b4d;font-family:"Playfair Display",serif;font-size:12px}
+.nav-livro a:hover,.nav-livro a:focus-visible{border-left-color:var(--dourado);background:rgba(201,168,106,.045);color:var(--dourado-claro);outline:none}
+.sidebar-selo{position:absolute;right:22px;bottom:36px;left:22px;display:flex;align-items:center;gap:10px;color:#514b41;font-size:7px;letter-spacing:2px;text-transform:uppercase}
+.sidebar-selo::before,.sidebar-selo::after{height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--borda-dourada))}
+.sidebar-selo::after{transform:rotate(180deg)}
+.fragmentos{margin-top:34px;padding:13px 11px 12px;border:1px solid rgba(201,168,106,.12);background:linear-gradient(135deg,rgba(201,168,106,.035),transparent);color:var(--texto-2);animation:registro-surge .7s ease both}
+.fragmentos[hidden]{display:none}
+.fragmentos-titulo{display:block;margin-bottom:10px;color:#81765f;font-size:7px;letter-spacing:2px;text-transform:uppercase}
+.fragmentos-contagem{display:flex;align-items:center;gap:9px;font-family:"Playfair Display",serif;font-size:13px;color:var(--dourado-claro)}
+.fragmentos-selo{width:8px;height:8px;flex:none;border:1px solid rgba(201,168,106,.58);transform:rotate(45deg);box-shadow:0 0 0 0 rgba(201,168,106,0)}
+.fragmentos.progresso-novo .fragmentos-selo{animation:selo-gravado .8s ease}
+.fragmentos-traco{height:1px;margin-top:10px;background:linear-gradient(90deg,var(--dourado) 0 var(--progresso,0%),rgba(201,168,106,.11) var(--progresso,0%) 100%);transition:background .5s ease}
+.livro{min-width:0;padding:0 56px 45px}
+
+/* Capa */
+.capa{
+    position:relative;
+    min-height:550px;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    border-bottom:1px solid var(--borda);
+    text-align:center;
+    isolation:isolate;
+}
+.capa::before,.capa::after{position:absolute;top:50%;left:50%;z-index:-1;content:"";border:1px solid rgba(201,168,106,.105);transform:translate(-50%,-50%) rotate(45deg)}
+.capa::before{width:270px;height:270px;box-shadow:0 0 80px rgba(201,168,106,.035)}
+.capa::after{width:190px;height:190px;border-color:rgba(201,168,106,.075)}
+.capa-orbita{position:absolute;top:50%;left:50%;z-index:-1;width:390px;height:390px;border:1px solid rgba(201,168,106,.055);border-radius:50%;transform:translate(-50%,-50%)}
+.capa-orbita::before,.capa-orbita::after{position:absolute;width:4px;height:4px;border:1px solid rgba(201,168,106,.35);border-radius:50%;background:#0b0a08;content:""}
+.capa-orbita::before{top:50%;left:-3px}.capa-orbita::after{top:50%;right:-3px}
+.capa-conteudo{position:relative;z-index:1;padding:35px 0;animation:entrada .9s both}
+.capa-selo{display:block;margin-bottom:17px;color:var(--dourado);font-size:8px;letter-spacing:5px;text-transform:uppercase}
+.capa-linha{width:76px;height:1px;margin:0 auto 22px;background:linear-gradient(90deg,transparent,var(--dourado),transparent)}
+.capa h1{margin:17px 0 14px;color:#f0ece3;font-family:"Playfair Display",serif;font-size:clamp(62px,9vw,104px);font-weight:600;line-height:.88;letter-spacing:-4px;text-shadow:0 8px 40px rgba(0,0,0,.5)}
+.capa-subtitulo{color:#827c71;font-size:9px;letter-spacing:3px;line-height:1.9;text-transform:uppercase}
+.capa-rodape{position:absolute;right:0;bottom:23px;left:0;color:#4e493f;font-size:7px;letter-spacing:3px;text-transform:uppercase}
+.capa-rodape::before,.capa-rodape::after{display:inline-block;width:24px;height:1px;margin:0 12px 2px;background:var(--borda-dourada);content:""}
+
+/* Páginas */
+.pagina{position:relative;min-height:640px;padding:62px 12px 58px;border-bottom:1px solid var(--borda);scroll-margin-top:90px}
+.pagina-indice{position:relative;display:flex;align-items:center;gap:17px;margin-bottom:22px}
+.pagina-indice span{color:var(--dourado);font-size:8px;letter-spacing:3px;text-transform:uppercase}
+.regua-manuscrito{
+    position:relative;
+    width:94px;
+    height:12px;
+    display:block;
+    flex:none;
+    touch-action:pan-y;
+}
+.regua-manuscrito::before{position:absolute;top:6px;right:0;left:0;height:1px;background:linear-gradient(90deg,rgba(201,168,106,.42),rgba(201,168,106,.12));content:""}
+.regua-manuscrito::after{position:absolute;top:4px;left:0;width:5px;height:5px;border:1px solid rgba(201,168,106,.42);background:#0b0a08;content:"";transform:rotate(45deg)}
+.regua-mensagem{position:absolute;top:20px;left:0;z-index:3;width:min(410px,75vw);padding:13px 15px;border:1px solid rgba(201,168,106,.25);background:rgba(12,11,9,.97);color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:13px;line-height:1.65;letter-spacing:.3px;box-shadow:0 14px 35px rgba(0,0,0,.36);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .3s,transform .3s,visibility .3s}
+.regua-mensagem.aberta{opacity:1;visibility:visible;transform:translateY(0)}
+.pagina-vazia{
+    position:relative;
+    min-height:470px;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    border:1px solid rgba(201,168,106,.08);
+    background:linear-gradient(135deg,rgba(255,255,255,.018),transparent 44%,rgba(201,168,106,.012));
+    box-shadow:inset 0 0 60px rgba(0,0,0,.17);
+}
+.pagina-vazia::before,.pagina-vazia::after{position:absolute;inset:12px;pointer-events:none;border:1px solid rgba(201,168,106,.035);content:""}
+.pagina-vazia::after{inset:18px;border-color:transparent;background:linear-gradient(90deg,rgba(201,168,106,.13),rgba(201,168,106,.13)) left top/18px 1px no-repeat,linear-gradient(rgba(201,168,106,.13),rgba(201,168,106,.13)) left top/1px 18px no-repeat,linear-gradient(270deg,rgba(201,168,106,.13),rgba(201,168,106,.13)) right bottom/18px 1px no-repeat,linear-gradient(0deg,rgba(201,168,106,.13),rgba(201,168,106,.13)) right bottom/1px 18px no-repeat}
+.pagina-simbolo{width:72px;height:72px;display:grid;place-items:center;border:1px solid rgba(201,168,106,.075);transform:rotate(45deg)}
+.pagina-simbolo span{color:rgba(201,168,106,.24);font-family:"Playfair Display",serif;font-size:27px;transform:rotate(-45deg)}
+
+/* Conteúdo do capítulo 01 */
+.capitulo-conteudo{max-width:780px;margin:0 auto;color:var(--texto-2);font-size:13px;line-height:1.85}
+.capitulo-conteudo h2{margin:0 0 13px;color:#eee9df;font-family:"Playfair Display",serif;font-size:clamp(26px,4vw,36px);font-weight:600;line-height:1.2}
+.capitulo-conteudo h3{margin:34px 0 10px;color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:21px;font-weight:600}
+.capitulo-conteudo h4{margin:24px 0 8px;color:#d4c29f;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.capitulo-conteudo p{margin:0 0 14px}
+.capitulo-conteudo strong{color:#e8e1d3;font-weight:600}
+.capitulo-conteudo .formula-teste{margin:20px 0;padding:16px;border:1px solid var(--borda-dourada);background:rgba(201,168,106,.045);color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:18px;text-align:center;letter-spacing:.5px}
+.capitulo-conteudo .exemplo-investigacao{margin:18px 0;padding:18px 20px;border-left:1px solid var(--dourado);background:linear-gradient(90deg,rgba(201,168,106,.055),transparent)}
+.capitulo-conteudo .exemplo-investigacao ul{margin:10px 0 0;padding-left:20px}
+.capitulo-conteudo .exemplo-investigacao li{margin:6px 0;padding-left:4px}
+.capitulo-conteudo .nota-capitulo{color:#c1b9aa;font-style:italic}
+.capitulo-conteudo .tabela-cargos{width:100%;margin:20px 0;border-collapse:collapse;color:var(--texto-2);font-size:12px}
+.capitulo-conteudo .tabela-cargos th,.capitulo-conteudo .tabela-cargos td{padding:10px 12px;border:1px solid rgba(201,168,106,.16);text-align:left}
+.capitulo-conteudo .tabela-cargos th{background:rgba(201,168,106,.07);color:var(--dourado-claro);font-weight:600}
+.capitulo-conteudo .tabela-cargos td:last-child{text-align:right;color:#e8e1d3;font-variant-numeric:tabular-nums}
+.capitulo-conteudo .honra-citacao{margin:24px 0;padding:19px 22px;border:1px solid var(--borda-dourada);background:linear-gradient(120deg,rgba(201,168,106,.085),rgba(201,168,106,.018));color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:clamp(16px,2.2vw,20px);line-height:1.7;text-align:center;box-shadow:inset 0 0 30px rgba(201,168,106,.025)}
+.capitulo-conteudo .honra-citacao-inicial{font-style:italic}
+.capitulo-conteudo .honra-citacao-final{font-size:clamp(16px,2vw,19px);text-align:left}
+.capitulo-conteudo .honra-exemplo{margin:20px 0;padding:17px 20px;border-left:1px solid var(--dourado);background:linear-gradient(90deg,rgba(201,168,106,.055),transparent)}
+.capitulo-conteudo .honra-exemplo blockquote{margin:13px 0 0;padding:3px 0 3px 15px;border-left:1px solid rgba(201,168,106,.22);color:#d0c6b5}
+.capitulo-conteudo .honra-exemplo blockquote p{margin-bottom:8px}
+.capitulo-conteudo .honra-estados{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.capitulo-conteudo .honra-estado{padding:16px 17px;border:1px solid rgba(201,168,106,.17);background:linear-gradient(145deg,rgba(201,168,106,.055),rgba(255,255,255,.008))}
+.capitulo-conteudo .honra-estado h4{margin:0 0 9px;color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:15px;letter-spacing:1.4px}
+.capitulo-conteudo .honra-estado p:last-child{margin-bottom:0}
+.capitulo-conteudo .honra-relacao{padding:13px;border-top:1px solid rgba(201,168,106,.18);border-bottom:1px solid rgba(201,168,106,.18);color:var(--dourado-claro);font-family:"Playfair Display",serif;text-align:center;letter-spacing:.5px}
+.capitulo-conteudo .honra-colunas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}
+.capitulo-conteudo .honra-colunas>div{min-width:0;padding:16px;border:1px solid rgba(201,168,106,.15);background:rgba(255,255,255,.015)}
+.capitulo-conteudo .honra-colunas ul{margin-bottom:0;padding-left:19px}
+.capitulo-conteudo .honra-promessas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:20px 0}
+.capitulo-conteudo .honra-promessas>div{min-width:0;padding:15px;border:1px solid rgba(201,168,106,.16);background:linear-gradient(145deg,rgba(201,168,106,.045),transparent)}
+.capitulo-conteudo .honra-promessas h4{margin:0 0 9px;color:var(--dourado-claro)}
+.capitulo-conteudo .honra-promessas blockquote{margin:0 0 11px;color:#e8e1d3;font-family:"Playfair Display",serif;font-size:15px;line-height:1.6}
+.capitulo-conteudo .honra-promessas p:last-child{margin:0}
+@media(max-width:600px){
+    .capitulo-conteudo .honra-estados,.capitulo-conteudo .honra-colunas,.capitulo-conteudo .honra-promessas{grid-template-columns:1fr}
+    .capitulo-conteudo .honra-citacao{padding:16px;font-size:16px}
+}
+@media(max-width:600px){.capitulo-conteudo{font-size:12px}.capitulo-conteudo h3{font-size:19px}.capitulo-conteudo .exemplo-investigacao{padding:15px}.capitulo-conteudo .tabela-cargos{font-size:11px}.capitulo-conteudo .tabela-cargos th,.capitulo-conteudo .tabela-cargos td{padding:8px}}
+
+/* Os segredos ficam no arquivo ornamental, separado das páginas do livro. */
+.logo-mark{cursor:default;user-select:none;-webkit-user-select:none;touch-action:none}
+.logo-mark:focus-visible{outline:1px solid rgba(201,168,106,.38);outline-offset:7px}
+.arquivo-segredos{position:relative;width:min(1280px,calc(100% - 48px));min-height:82px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:38px;border-right:1px solid var(--borda);border-left:1px solid var(--borda)}
+.arquivo-segredos .logo-mark{flex:none}
+.arquivo-segredos .regua-manuscrito{cursor:crosshair}
+.arquivo-segredos .marginal-mensagem,.arquivo-segredos .regua-mensagem{top:auto;right:16px;bottom:calc(100% + 8px);left:auto;z-index:30;width:min(410px,calc(100vw - 32px))}
+.marginal-mensagem{position:absolute;top:66px;right:27px;z-index:3;width:min(350px,75vw);padding:13px 15px;border:1px solid rgba(201,168,106,.25);background:rgba(12,11,9,.97);color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:13px;line-height:1.65;letter-spacing:.3px;box-shadow:0 14px 35px rgba(0,0,0,.36);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .3s,transform .3s,visibility .3s}
+.marginal-mensagem.aberta{opacity:1;visibility:visible;transform:translateY(0)}
+
+/* Fragmentos e mensagens reveladas */
+.marginal-mensagem,.regua-mensagem{display:flex;align-items:flex-start;gap:10px;pointer-events:none}
+.marginal-mensagem.aberta,.regua-mensagem.aberta{pointer-events:auto}
+.segredo-texto{flex:1}
+.fechar-mensagem{width:28px;height:28px;flex:none;margin:-7px -8px 0 0;border:0;background:transparent;color:rgba(227,204,157,.62);font-size:20px;line-height:1;transition:color .2s,transform .2s}
+.fechar-mensagem:hover,.fechar-mensagem:focus-visible{color:var(--dourado-claro);transform:rotate(90deg);outline:1px solid rgba(201,168,106,.35)}
+
+/* Sumário astral — navegação visual separada do conteúdo dos capítulos. */
+.mapa-astral{position:relative;margin:0 -25px 42px;padding:42px 22px 28px;overflow:hidden;border-bottom:1px solid var(--borda);background:radial-gradient(ellipse at 50% 48%,rgba(201,168,106,.045),transparent 58%),linear-gradient(180deg,rgba(201,168,106,.018),transparent 72%)}
+.mapa-cabecalho{position:relative;z-index:2;margin-bottom:12px;text-align:center}
+.mapa-etiqueta{display:block;margin-bottom:9px;color:var(--dourado);font-size:8px;letter-spacing:4px;text-transform:uppercase}
+.mapa-titulo{margin:0;color:#e8e1d3;font-family:"Playfair Display",serif;font-size:clamp(22px,3vw,30px);font-weight:600;letter-spacing:1.4px;transition:opacity .8s,transform .8s}
+.mapa-legenda{margin:9px 0 0;color:var(--texto-3);font-size:8px;letter-spacing:1.5px;text-transform:uppercase}
+ .mapa-palco{position:relative;width:100%;max-width:820px;height:clamp(290px,42vw,410px);margin:0 auto;isolation:isolate;cursor:zoom-in}
+.mapa-controles{width:min(100%,820px);display:flex;align-items:center;justify-content:flex-end;gap:7px;margin:3px auto 0;color:var(--texto-3)}
+.mapa-confirmacao{width:min(100%,820px);min-height:42px;display:flex;align-items:center;justify-content:center;gap:12px;margin:10px auto 0;padding:8px 12px;border:1px solid rgba(201,168,106,.15);background:rgba(10,9,8,.45);color:var(--texto-2);font-size:9px;letter-spacing:.8px;opacity:0;visibility:hidden;transform:translateY(5px);transition:opacity .25s,transform .25s,visibility .25s}
+.mapa-confirmacao.visivel{opacity:1;visibility:visible;transform:translateY(0)}
+.mapa-confirmacao-texto{flex:1;text-align:right}
+.mapa-confirmar,.mapa-cancelar{padding:8px 12px;border:1px solid var(--borda-dourada);background:rgba(201,168,106,.09);color:var(--dourado-claro);font-size:8px;letter-spacing:1.3px;text-transform:uppercase;transition:background .2s,color .2s,border-color .2s}
+.mapa-confirmar:hover,.mapa-confirmar:focus-visible{background:rgba(201,168,106,.2);color:#fff;outline:1px solid rgba(227,204,157,.45);outline-offset:2px}
+.mapa-cancelar{border-color:rgba(235,225,205,.16);background:rgba(255,255,255,.025);color:var(--texto-2)}
+.mapa-cancelar:hover,.mapa-cancelar:focus-visible{border-color:rgba(235,225,205,.38);background:rgba(255,255,255,.06);color:#fff;outline:1px solid rgba(235,225,205,.3);outline-offset:2px}
+.pagina-indice{justify-content:space-between}
+.pagina-voltar{padding:7px 10px;border:1px solid rgba(201,168,106,.17);color:#8a857c;font-size:8px;letter-spacing:1.2px;text-decoration:none;text-transform:uppercase;transition:color .2s,border-color .2s,background .2s}
+.pagina-voltar:hover,.pagina-voltar:focus-visible{border-color:var(--borda-dourada);background:rgba(201,168,106,.06);color:var(--dourado-claro);outline:none}
+.mapa-destino-ativo{animation:pagina-destino .75s ease both}
+@keyframes pagina-destino{0%{opacity:.45;transform:translateY(12px)}65%{opacity:1;transform:translateY(-3px)}100%{opacity:1;transform:translateY(0)}}
+.mapa-controle{width:32px;height:30px;display:grid;place-items:center;border:1px solid rgba(201,168,106,.18);background:rgba(10,9,8,.65);color:var(--dourado-claro);font-size:15px;transition:border-color .2s,background .2s,color .2s}
+.mapa-controle:hover,.mapa-controle:focus-visible{border-color:var(--borda-dourada);background:rgba(201,168,106,.08);color:#fff;outline:1px solid rgba(227,204,157,.45);outline-offset:2px}
+.mapa-zoom-valor{min-width:42px;color:var(--texto-3);font-size:8px;letter-spacing:1px;text-align:center}
+.mapa-campo{position:absolute;inset:0;transform:scale(var(--zoom,1));transform-origin:var(--foco-x,50%) var(--foco-y,50%);transition:transform 1.25s cubic-bezier(.18,.72,.22,1)}
+.mapa-linhas{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.mapa-linhas path{fill:none;stroke:rgba(201,168,106,.38);stroke-width:1;vector-effect:non-scaling-stroke;transition:stroke .35s,filter .35s,opacity .35s}
+.mapa-linhas .linha-mobile{display:none}
+.mapa-linhas .linha-secundaria{stroke:rgba(201,168,106,.16);stroke-dasharray:2 8}
+.mapa-astral.conexao-ativa .mapa-linhas path{stroke:rgba(227,204,157,.72);filter:drop-shadow(0 0 3px rgba(201,168,106,.3))}
+.mapa-estrelas{position:absolute;inset:0;pointer-events:none}
+.mapa-estrela{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(227,204,157,.55);box-shadow:0 0 8px rgba(201,168,106,.28)}
+.mapa-estrela:nth-child(1){left:13%;top:20%}.mapa-estrela:nth-child(2){left:41%;top:13%;width:1px;height:1px}.mapa-estrela:nth-child(3){left:89%;top:25%}.mapa-estrela:nth-child(4){left:62%;top:84%;width:1px;height:1px}.mapa-estrela:nth-child(5){left:8%;top:73%}.mapa-estrela:nth-child(6){left:52%;top:30%;width:1px;height:1px}.mapa-estrela:nth-child(7){left:93%;top:73%;width:1px;height:1px}.mapa-estrela:nth-child(8){left:34%;top:87%}
+.mapa-centro{position:absolute;top:50%;left:50%;width:76px;height:76px;display:grid;place-items:center;border:1px solid rgba(201,168,106,.28);transform:translate(-50%,-50%) rotate(45deg);color:rgba(227,204,157,.8);box-shadow:0 0 34px rgba(201,168,106,.07)}
+.mapa-centro::before{position:absolute;inset:8px;border:1px solid rgba(201,168,106,.16);content:""}
+.mapa-centro span{font-family:"Playfair Display",serif;font-size:28px;transform:rotate(-45deg)}
+.mapa-ponto{position:absolute;z-index:2;top:var(--y);left:var(--x);width:44px;height:44px;display:grid;place-items:center;border:1px solid transparent;border-radius:50%;color:var(--dourado-claro);text-decoration:none;transform:translate(-50%,-50%);transition:border-color .3s,background .3s,box-shadow .3s}
+.mapa-ponto::before{width:7px;height:7px;border:1px solid #e3cc9d;border-radius:50%;background:var(--dourado);content:"";box-shadow:0 0 9px rgba(201,168,106,.62),0 0 22px rgba(201,168,106,.2);transition:transform .3s,box-shadow .3s}
+.mapa-ponto:hover,.mapa-ponto:focus-visible,.mapa-ponto.selecionado{border-color:rgba(201,168,106,.28);background:rgba(201,168,106,.045);outline:none}
+.mapa-ponto:hover::before,.mapa-ponto:focus-visible::before,.mapa-ponto.selecionado::before{transform:scale(1.35);box-shadow:0 0 12px rgba(201,168,106,.85),0 0 28px rgba(201,168,106,.34)}
+.mapa-ponto:focus-visible{outline:1px solid var(--dourado-claro);outline-offset:3px}
+.mapa-nome{position:absolute;top:50%;left:calc(100% + 8px);width:max-content;max-width:150px;padding:7px 9px;border:1px solid rgba(201,168,106,.2);background:rgba(10,9,8,.94);color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:12px;letter-spacing:.4px;opacity:0;visibility:hidden;transform:translateY(-50%) translateX(-4px);transition:opacity .22s,transform .22s,visibility .22s;pointer-events:none}
+.mapa-ponto:hover .mapa-nome,.mapa-ponto:focus-visible .mapa-nome,.mapa-ponto.selecionado .mapa-nome{opacity:1;visibility:visible;transform:translateY(-50%) translateX(0)}
+.mapa-ponto[data-capitulo="pagina-02"] .mapa-nome,.mapa-ponto[data-capitulo="pagina-04"] .mapa-nome{right:calc(100% + 8px);left:auto;transform:translateY(-50%) translateX(4px)}
+.mapa-ponto[data-capitulo="pagina-02"]:hover .mapa-nome,.mapa-ponto[data-capitulo="pagina-02"]:focus-visible .mapa-nome,.mapa-ponto[data-capitulo="pagina-02"].selecionado .mapa-nome,.mapa-ponto[data-capitulo="pagina-04"]:hover .mapa-nome,.mapa-ponto[data-capitulo="pagina-04"]:focus-visible .mapa-nome,.mapa-ponto[data-capitulo="pagina-04"].selecionado .mapa-nome{transform:translateY(-50%) translateX(0)}
+/* Capítulos em percurso alternado, com rótulos sempre visíveis junto aos pontos. */
+#sumario-astral .mapa-centro{top:22%}
+#sumario-astral .mapa-ponto .mapa-nome{top:50%;right:auto;left:calc(100% + 12px);max-width:170px;text-align:left;opacity:1;visibility:visible;transform:translateY(-50%)}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-02"] .mapa-nome,#sumario-astral .mapa-ponto[data-capitulo="pagina-04"] .mapa-nome{right:calc(100% + 12px);left:auto;text-align:right;transform:translateY(-50%)}
+#sumario-astral .mapa-ponto:hover .mapa-nome,#sumario-astral .mapa-ponto:focus-visible .mapa-nome,#sumario-astral .mapa-ponto.selecionado .mapa-nome{transform:translateY(-50%)}
+.mapa-astral.animando .mapa-titulo{opacity:0;transform:translateY(9px);animation:mapa-titulo  .75s 1.7s ease forwards}
+.mapa-astral.animando .mapa-linhas path{stroke-dasharray:1000;stroke-dashoffset:1000;animation:mapa-linha 1.15s .95s ease forwards}
+.mapa-astral.animando .mapa-linhas .linha-secundaria{animation-delay:1.25s}
+.mapa-astral.animando .mapa-ponto::before{animation:mapa-ponto .75s both}
+.mapa-astral.animando .mapa-ponto[data-capitulo="pagina-01"]::before{animation-delay:.45s}
+.mapa-astral.animando .mapa-ponto[data-capitulo="pagina-02"]::before{animation-delay:.7s}
+.mapa-astral.animando .mapa-ponto[data-capitulo="pagina-03"]::before{animation-delay:.95s}
+            .mapa-astral.animando .mapa-ponto[data-capitulo="pagina-04"]::before{animation-delay:1.2s}
+            .mapa-astral.animando .mapa-ponto[data-capitulo="pagina-05"]::before{animation-delay:1.45s}
+.mapa-astral.animando .mapa-ponto[data-capitulo="pagina-06"]::before{animation-delay:1.7s}
+
+.mapa-astral.animando .mapa-centro{animation:mapa-centro 1.3s 1.2s ease both}
+.mapa-astral.animando .mapa-estrela{animation:mapa-cintilar 3.4s ease-in-out infinite alternate}
+.mapa-astral.animando .mapa-estrela:nth-child(even){animation-delay:1.1s}
+.mapa-astral.pausado *{animation-play-state:paused!important}
+.mapa-astral.aproximando .mapa-campo{transform:scale(calc(var(--zoom,1) * 1.55))}
+.mapa-astral.aproximando .mapa-linhas path{stroke:rgba(227,204,157,.78);filter:drop-shadow(0 0 3px rgba(201,168,106,.42))}
+.mapa-palco::after{position:absolute;inset:0;z-index:1;pointer-events:none;content:"";opacity:0;background:radial-gradient(circle at var(--foco-x,50%) var(--foco-y,50%),rgba(227,204,157,.17),rgba(201,168,106,.055) 10%,transparent 28%);transition:opacity .9s ease}
+.mapa-astral.aproximando .mapa-palco::after{opacity:1;animation:mapa-brilho 2.8s ease-in-out infinite alternate}
+.mapa-ponto::after{position:absolute;inset:8px;border:1px solid rgba(227,204,157,.72);border-radius:50%;content:"";opacity:0;transform:scale(.45);pointer-events:none}
+.mapa-ponto.selecionado::after{animation:mapa-onda 1.8s ease-out infinite}
+@keyframes mapa-onda{0%{opacity:.75;transform:scale(.45)}100%{opacity:0;transform:scale(2.7)}}
+@keyframes mapa-brilho{from{opacity:.55}to{opacity:1}}
+@keyframes mapa-titulo{to{opacity:1;transform:translateY(0)}}
+@keyframes mapa-linha{to{stroke-dashoffset:0}}
+@keyframes mapa-ponto{0%{opacity:.1;transform:scale(.4)}70%{opacity:1;transform:scale(1.55)}100%{opacity:1;transform:scale(1)}}
+@keyframes mapa-centro{from{filter:brightness(.65);box-shadow:0 0 8px rgba(201,168,106,.04)}to{filter:brightness(1.2);box-shadow:0 0 38px rgba(201,168,106,.17)}}
+@keyframes mapa-cintilar{from{opacity:.35}to{opacity:.85}}
+
+/* Rodapé */
+.rodape{display:flex;align-items:center;justify-content:center;gap:14px;padding:30px 10px 10px;color:#5b554b;font-size:8px;letter-spacing:2.2px;text-align:center;text-transform:uppercase}
+.rodape::before,.rodape::after{width:30px;height:1px;background:var(--borda-dourada);content:""}
+
+@keyframes entrada{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes selo-surge{from{opacity:0;transform:scale(.66) rotate(-18deg);filter:blur(5px)}to{opacity:1;transform:scale(1) rotate(0);filter:blur(0)}}
+@keyframes linha-selo{from{clip-path:inset(50%);opacity:0}to{clip-path:inset(0);opacity:1}}
+@keyframes regua-abre{to{transform:translate(-50%,-50%) scaleX(1)}}
+@keyframes titulo-abre{to{opacity:1}}
+@keyframes particula-sobe{0%{opacity:0;transform:translateY(16px)}35%{opacity:.48}100%{opacity:0;transform:translateY(-30px)}}
+@keyframes registro-surge{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes selo-gravado{50%{box-shadow:0 0 0 7px rgba(201,168,106,.11);background:var(--dourado)}}
+@media(max-width:900px){
+    .sumario-superior{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;touch-action:pan-x;scrollbar-width:thin;scrollbar-color:rgba(201,168,106,.4) rgba(201,168,106,.06);padding:5px 14px}
+    .sumario-superior::-webkit-scrollbar{height:3px}
+    .sumario-superior::-webkit-scrollbar-track{background:rgba(201,168,106,.06)}
+    .sumario-superior::-webkit-scrollbar-thumb{background:rgba(201,168,106,.38)}
+    .layout{width:min(100% - 28px,760px);grid-template-columns:1fr}
+    .arquivo-segredos{width:min(100% - 28px,760px)}
+    .sidebar{position:relative;top:auto;height:auto;min-height:0;display:flex;align-items:center;gap:18px;padding:12px 18px;border-right:0;border-bottom:1px solid var(--borda)}
+    .sidebar-label{margin:0;white-space:nowrap}
+    .sidebar-linha{width:1px;height:22px;flex:none;margin:0;background:linear-gradient(180deg,transparent,var(--borda-dourada),transparent)}
+    .nav-livro{display:flex;flex:1 1 100%;min-width:0;gap:4px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;touch-action:pan-x;scrollbar-width:thin;scrollbar-color:rgba(201,168,106,.4) rgba(201,168,106,.06);padding:2px 0 6px}
+    .nav-livro a{flex:0 0 auto;min-height:40px;padding:0 11px;border-left:0;border-bottom:1px solid transparent;white-space:nowrap}
+    .nav-livro::-webkit-scrollbar{height:3px}
+    .nav-livro::-webkit-scrollbar-track{background:rgba(201,168,106,.06)}
+    .nav-livro::-webkit-scrollbar-thumb{background:rgba(201,168,106,.38)}
+    .nav-livro a:hover,.nav-livro a:focus-visible{border-bottom-color:var(--dourado)}
+    .sidebar-selo{display:none}
+    .sidebar{flex-wrap:wrap}
+    .fragmentos{flex:0 0 min(100%,260px);margin-top:4px}
+    .livro{padding:0 42px 38px}
+    .capa{min-height:490px}
+}
+@media(max-width:600px){
+    html{scroll-padding-top:68px}
+    .topo{min-height:64px;padding:10px 12px;gap:8px}
+    .sumario-superior{min-height:42px;gap:3px;padding-right:10px;padding-left:10px}
+    .sumario-superior a{padding:8px 10px;font-size:9px}
+    .logo{gap:9px;min-width:0}
+    .topo-acoes{gap:5px;flex:none}
+    .topo-acoes .btn{padding:8px;font-size:8px;letter-spacing:1px}
+    .layout{width:100%;border:0}
+    .arquivo-segredos{width:100%;min-height:72px;border-right:0;border-left:0}
+    .sidebar{gap:10px;padding:9px 12px;min-width:0}
+    .sidebar-label{font-size:7px;letter-spacing:2px}
+    .nav-livro{width:100%;min-width:0;flex:1 1 100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;touch-action:pan-x;scrollbar-width:thin;scrollbar-color:rgba(201,168,106,.4) rgba(201,168,106,.06);padding:2px 0 7px}
+    .nav-livro a{flex:0 0 auto;min-height:40px;gap:7px;padding:0 11px;white-space:nowrap;font-size:9px}
+    .nav-livro::-webkit-scrollbar{height:3px}
+    .nav-livro::-webkit-scrollbar-track{background:rgba(201,168,106,.06)}
+    .nav-livro::-webkit-scrollbar-thumb{background:rgba(201,168,106,.38)}
+    .livro{padding:0 15px 30px}
+    .capa{min-height:420px}
+    .capa::before{width:220px;height:220px}
+    .capa::after{width:155px;height:155px}
+    .capa-orbita{width:310px;height:310px}
+    .capa h1{font-size:clamp(58px,17vw,84px);letter-spacing:-3px}
+    .capa-subtitulo{max-width:270px;margin:auto;font-size:8px;letter-spacing:2px}
+    .pagina{min-height:540px;padding:44px 3px}
+    .pagina-vazia{min-height:400px}
+    .mapa-astral{margin:0 -10px 32px;padding:34px 10px 20px}
+    .mapa-palco{height:300px}
+    .mapa-centro{width:58px;height:58px}
+    .mapa-ponto{width:48px;height:48px}
+    .mapa-nome{max-width:112px;padding:6px 7px;font-size:11px}
+    .mapa-ponto[data-capitulo="pagina-02"] .mapa-nome{right:calc(100% + 5px)}
+                #sumario-astral .mapa-centro{display:none}
+            #sumario-astral .mapa-linhas .linha-desktop{display:none}
+            #sumario-astral .mapa-linhas .linha-mobile{display:block}
+            #sumario-astral .mapa-ponto[data-capitulo="pagina-01"]{--x:22%!important;--y:18%!important}
+            #sumario-astral .mapa-ponto[data-capitulo="pagina-02"]{--x:78%!important;--y:50%!important}
+            #sumario-astral .mapa-ponto[data-capitulo="pagina-03"]{--x:22%!important;--y:82%!important}
+            #sumario-astral .mapa-ponto[data-capitulo="pagina-04"]{--x:78%!important;--y:82%!important}
+            #sumario-astral .mapa-ponto .mapa-nome{top:50%;right:auto;left:calc(100% + 12px);max-width:112px;text-align:left;transform:translateY(-50%)}
+            #sumario-astral .mapa-ponto[data-capitulo="pagina-02"] .mapa-nome,#sumario-astral .mapa-ponto[data-capitulo="pagina-04"] .mapa-nome{right:calc(100% + 12px);left:auto}
+            #sumario-astral .mapa-ponto:hover .mapa-nome,#sumario-astral .mapa-ponto:focus-visible .mapa-nome,#sumario-astral .mapa-ponto.selecionado .mapa-nome{transform:translateY(-50%)}
+    .rodape{font-size:7px;letter-spacing:1.5px}
+}
+/* Ajustes da constelação para seis destinos, com rótulos alternados e posições estáveis. */
+#sumario-astral .mapa-centro{top:50%}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-01"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-04"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-05"] .mapa-nome{right:auto;left:calc(100% + 12px);text-align:left}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-02"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-03"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-06"] .mapa-nome{right:calc(100% + 12px);left:auto;text-align:right}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-01"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-02"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-03"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-04"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-05"] .mapa-nome{transform:translateY(-50%)}
+@media(max-width:600px){
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-01"]{--x:20%!important;--y:16%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-02"]{--x:76%!important;--y:28%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-03"]{--x:27%!important;--y:50%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-04"]{--x:74%!important;--y:68%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-05"]{--x:24%!important;--y:86%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-06"]{--x:76%!important;--y:89%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-01"] .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-03"] .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-05"] .mapa-nome{right:auto;left:calc(100% + 8px);max-width:108px;text-align:left}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-02"] .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-04"] .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-06"] .mapa-nome{right:calc(100% + 8px);left:auto;max-width:108px;text-align:right}
+}
+/* Contenção responsiva: textos longos e componentes internos não alargam o livro. */
+.layout,.livro,.pagina,.capitulo-conteudo,.arquivo-segredos{min-width:0}
+.capitulo-conteudo{overflow-wrap:anywhere}
+.capitulo-conteudo ul,.capitulo-conteudo ol{padding-left:22px}
+.capitulo-conteudo li{padding-left:2px;overflow-wrap:anywhere}
+img,svg,video,iframe{max-width:100%}
+.mapa-astral,.mapa-palco{min-width:0;max-width:100%}
+@media(max-width:380px){
+    .topo{padding-right:9px;padding-left:9px}
+    .logo-text small{font-size:7px;letter-spacing:1px}
+    .topo-acoes .btn{padding:7px 6px;font-size:7px;letter-spacing:.7px}
+    .pagina-indice{gap:8px}
+    .pagina-voltar{padding:7px 8px;font-size:7px}
+    .capitulo-conteudo .honra-exemplo{padding:14px}
+}
+/* Sistema de Raiva: modificadores e consequências organizados sem substituir a paleta do livro. */
+.capitulo-conteudo .raiva-estagios{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.capitulo-conteudo .raiva-estagio{min-width:0;padding:17px;border:1px solid rgba(201,168,106,.18);background:linear-gradient(145deg,rgba(201,168,106,.055),rgba(255,255,255,.008))}
+.capitulo-conteudo .raiva-estagio h4{margin:0 0 10px;color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:16px;letter-spacing:.7px;text-transform:none}
+.capitulo-conteudo .raiva-estagio p{margin:0 0 9px}
+.capitulo-conteudo .raiva-estagio p:last-child{margin-bottom:0}
+.capitulo-conteudo .raiva-efeito strong{color:var(--dourado-claro)}
+.capitulo-conteudo .raiva-penalidade strong{color:#c98e83}
+.capitulo-conteudo .raiva-narrativa strong{color:#d5b68a}
+.capitulo-conteudo .raiva-calculo{margin:14px 0;padding:14px;border:1px solid var(--borda-dourada);background:rgba(201,168,106,.045);color:var(--dourado-claro);font-size:12px;line-height:1.75;text-align:center;overflow-wrap:anywhere}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-07"] .mapa-nome{top:auto;right:auto;bottom:calc(100% + 6px);left:50%;text-align:center;transform:translateX(-50%)}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-07"]:hover .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-07"]:focus-visible .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-07"].selecionado .mapa-nome{transform:translateX(-50%)}
+@media(max-width:600px){
+    .capitulo-conteudo .raiva-estagios{grid-template-columns:1fr;gap:10px}
+    .capitulo-conteudo .raiva-estagio{padding:15px}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-07"]{--x:50%!important;--y:92%!important}
+}
+
+/* Capítulo 08: consulta compacta, com rolagem isolada nas tabelas em telas estreitas. */
+.capitulo-conteudo .categoria-armas-descricao{margin:-5px 0 10px;color:#827c71;font-size:11px}
+.capitulo-conteudo .tabela-armas-wrap{width:100%;max-width:100%;margin:14px 0 22px;overflow-x:auto;border:1px solid rgba(201,168,106,.16);overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:rgba(201,168,106,.4) rgba(201,168,106,.06)}
+.capitulo-conteudo .tabela-armas-wrap:focus-visible{outline:1px solid var(--borda-dourada);outline-offset:3px}
+.capitulo-conteudo .tabela-armas{width:100%;min-width:420px;border-collapse:collapse;color:var(--texto-2);font-size:12px;line-height:1.55}
+.capitulo-conteudo .tabela-armas th,.capitulo-conteudo .tabela-armas td{padding:10px 14px;border-bottom:1px solid rgba(201,168,106,.11);text-align:left}
+.capitulo-conteudo .tabela-armas th{background:rgba(201,168,106,.075);color:var(--dourado-claro);font-size:9px;letter-spacing:1.5px;text-transform:uppercase}
+.capitulo-conteudo .tabela-armas tr:last-child td{border-bottom:0}
+.capitulo-conteudo .tabela-armas td:nth-child(2),.capitulo-conteudo .tabela-armas td:nth-child(3){color:var(--dourado-claro);font-variant-numeric:tabular-nums;white-space:nowrap}
+.capitulo-conteudo .tabela-armas th:nth-child(2),.capitulo-conteudo .tabela-armas th:nth-child(3){width:100px}
+.capitulo-conteudo .armas-regras{margin:20px 0;padding:18px 20px;border-left:1px solid var(--dourado);background:linear-gradient(90deg,rgba(201,168,106,.055),transparent)}
+.capitulo-conteudo .armas-regras h4{margin:0 0 10px;color:var(--dourado-claro)}
+.capitulo-conteudo .armas-regras ul{margin:0;padding-left:20px}
+.capitulo-conteudo .armas-regras li{margin:6px 0}
+.capitulo-conteudo .armas-exemplos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.capitulo-conteudo .armas-exemplos>div{padding:16px 18px;border:1px solid rgba(201,168,106,.17);background:linear-gradient(145deg,rgba(201,168,106,.05),rgba(255,255,255,.008))}
+.capitulo-conteudo .armas-exemplos h4{margin:0 0 9px;color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:16px;letter-spacing:.4px;text-transform:none}
+.capitulo-conteudo .armas-exemplos p{margin:5px 0;color:var(--texto-2)}
+.capitulo-conteudo .armas-exemplos strong{color:var(--dourado-claro);font-variant-numeric:tabular-nums}
+#sumario-astral.animando .mapa-ponto[data-capitulo="pagina-08"]::before{animation-delay:1.95s}
+@media(max-width:600px){
+    .capitulo-conteudo .tabela-armas{min-width:400px;font-size:12px}
+    .capitulo-conteudo .tabela-armas th,.capitulo-conteudo .tabela-armas td{padding:9px 11px}
+    .capitulo-conteudo .armas-regras{padding:15px}
+    .capitulo-conteudo .armas-exemplos{grid-template-columns:1fr}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-01"]{--x:20%!important;--y:10%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-02"]{--x:80%!important;--y:21%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-03"]{--x:20%!important;--y:32%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-04"]{--x:80%!important;--y:43%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-05"]{--x:20%!important;--y:54%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-06"]{--x:80%!important;--y:65%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-07"]{--x:20%!important;--y:76%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-08"]{--x:80%!important;--y:89%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-07"] .mapa-nome{top:50%;right:auto;bottom:auto;left:calc(100% + 8px);text-align:left;transform:translateY(-50%)}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-08"] .mapa-nome{right:calc(100% + 8px);left:auto;max-width:108px;text-align:right;transform:translateY(-50%)}
+}
+
+/* Capítulo 09 — cartões de ferimentos, regiões e registro responsivos. */
+.capitulo-conteudo .ferimentos-condicoes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0;padding:0;list-style:none}
+.capitulo-conteudo .ferimentos-condicoes li{min-width:0;margin:0;padding:14px 15px;border:1px solid rgba(201,168,106,.17);border-left:2px solid var(--dourado);background:linear-gradient(120deg,rgba(201,168,106,.055),rgba(255,255,255,.008));color:#d2cabb}
+.capitulo-conteudo .ferimentos-graus{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:20px 0}
+.capitulo-conteudo .ferimento-cartao{min-width:0;padding:18px;border:1px solid rgba(201,168,106,.19);background:linear-gradient(145deg,rgba(201,168,106,.045),rgba(255,255,255,.008))}
+.capitulo-conteudo .ferimento-cartao h4{margin:0 0 12px;color:var(--dourado-claro);font-family:"Playfair Display",serif;font-size:17px;letter-spacing:.8px;text-transform:uppercase}
+.capitulo-conteudo .ferimento-cartao p{margin:0 0 9px}
+.capitulo-conteudo .ferimento-cartao p:last-child{margin-bottom:0}
+.capitulo-conteudo .ferimento-cartao .ferimento-recuperacao{margin-top:13px;padding-top:10px;border-top:1px solid rgba(201,168,106,.15);color:#d5c49f}
+.capitulo-conteudo .ferimento-moderado{border-top-color:rgba(201,168,106,.48)}
+.capitulo-conteudo .ferimento-grave{border-top-color:rgba(177,112,82,.55)}
+.capitulo-conteudo .ferimento-critico{border-top-color:rgba(160,75,70,.68);background:linear-gradient(145deg,rgba(110,36,34,.11),rgba(201,168,106,.018))}
+.capitulo-conteudo .ferimento-critico h4{color:#d9a19a}
+.capitulo-conteudo .ferimentos-localizacoes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0}
+.capitulo-conteudo .ferimentos-localizacoes span{min-width:0;padding:12px 10px;border:1px solid rgba(201,168,106,.16);background:rgba(201,168,106,.035);color:#dfd5c3;text-align:center}
+.capitulo-conteudo .ferimentos-exemplo{margin:19px 0;padding:18px 20px;border-left:1px solid var(--dourado);background:linear-gradient(90deg,rgba(201,168,106,.06),transparent)}
+.capitulo-conteudo .ferimentos-exemplo strong{color:var(--dourado-claro)}
+.capitulo-conteudo .ferimentos-registro{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:18px 0;padding:0;list-style:none}
+.capitulo-conteudo .ferimentos-registro li{min-width:0;margin:0;padding:12px 14px;border-bottom:1px solid rgba(201,168,106,.14);color:#d4cbbc;overflow-wrap:anywhere}
+.capitulo-conteudo .ferimentos-registro li::before{content:"✧";margin-right:9px;color:var(--dourado)}
+.capitulo-conteudo .ferimentos-nota{padding:14px 16px;border:1px solid rgba(201,168,106,.14);background:rgba(255,255,255,.012);color:#c1b9aa}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-09"] .mapa-nome{top:auto;right:auto;bottom:calc(100% + 7px);left:50%;max-width:min(190px,38vw);text-align:center;transform:translateX(-50%)}
+#sumario-astral.animando .mapa-ponto[data-capitulo="pagina-09"]::before{animation-delay:2.2s}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-09"]:hover .mapa-nome,#sumario-astral .mapa-ponto[data-capitulo="pagina-09"]:focus-visible .mapa-nome,#sumario-astral .mapa-ponto[data-capitulo="pagina-09"].selecionado .mapa-nome{transform:translateX(-50%)}
+@media(max-width:600px){
+    .capitulo-conteudo .ferimentos-condicoes,.capitulo-conteudo .ferimentos-graus{grid-template-columns:1fr;gap:9px}
+    .capitulo-conteudo .ferimento-cartao{padding:15px}
+    .capitulo-conteudo .ferimentos-localizacoes{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .capitulo-conteudo .ferimentos-registro{grid-template-columns:1fr;gap:2px}
+    .capitulo-conteudo .ferimentos-exemplo{padding:15px}
+    .mapa-palco{height:360px}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-09"]{--x:50%!important;--y:92%!important}
+}
+
+/* Sumário astral organizado em uma grade para manter pontos e rótulos separados. */
+#sumario-astral .mapa-palco{height:430px}
+#sumario-astral .mapa-centro{display:none}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-01"]{--x:17%!important;--y:15%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-02"]{--x:50%!important;--y:15%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-03"]{--x:83%!important;--y:15%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-04"]{--x:17%!important;--y:50%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-05"]{--x:50%!important;--y:50%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-06"]{--x:83%!important;--y:50%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-07"]{--x:17%!important;--y:85%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-08"]{--x:50%!important;--y:85%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-09"]{--x:83%!important;--y:85%!important}
+#sumario-astral .mapa-ponto[data-capitulo] .mapa-nome{top:calc(100% + 4px);right:auto;bottom:auto;left:50%;width:max-content;max-width:min(150px,28vw);padding:5px 7px;text-align:center;white-space:normal;overflow-wrap:anywhere;font-size:10px;line-height:1.35;transform:translateX(-50%)}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-07"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-08"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-09"] .mapa-nome{top:auto;right:auto;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%)}
+#sumario-astral .mapa-ponto[data-capitulo]:hover .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo]:focus-visible .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo].selecionado .mapa-nome{transform:translateX(-50%)}
+@media(max-width:600px){
+    #sumario-astral .mapa-palco{height:490px}
+    #sumario-astral .mapa-ponto[data-capitulo] .mapa-nome{max-width:min(94px,28vw);padding:5px 4px;font-size:9px;line-height:1.3}
+}
+
+/* Composição orgânica da constelação: posições espaçadas e conexões curvas. */
+#sumario-astral .mapa-palco{height:430px}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-01"]{--x:14%!important;--y:17%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-02"]{--x:42%!important;--y:9%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-03"]{--x:78%!important;--y:18%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-04"]{--x:89%!important;--y:45%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-05"]{--x:60%!important;--y:42%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-06"]{--x:27%!important;--y:53%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-07"]{--x:13%!important;--y:80%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-08"]{--x:49%!important;--y:91%!important}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-09"]{--x:83%!important;--y:77%!important}
+#sumario-astral .mapa-ponto[data-capitulo] .mapa-nome{top:calc(100% + 5px);right:auto;bottom:auto;left:50%;width:max-content;max-width:min(150px,28vw);padding:6px 8px;text-align:center;white-space:normal;overflow-wrap:anywhere;font-size:10px;line-height:1.35;transform:translateX(-50%)}
+#sumario-astral .mapa-ponto[data-capitulo="pagina-04"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-05"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-06"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-07"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-08"] .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo="pagina-09"] .mapa-nome{top:auto;bottom:calc(100% + 5px)}
+#sumario-astral .mapa-ponto[data-capitulo]:hover .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo]:focus-visible .mapa-nome,
+#sumario-astral .mapa-ponto[data-capitulo].selecionado .mapa-nome{transform:translateX(-50%)}
+@media(max-width:600px){
+    #sumario-astral .mapa-palco{height:400px}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-01"]{--x:14%!important;--y:17%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-02"]{--x:42%!important;--y:9%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-03"]{--x:78%!important;--y:18%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-04"]{--x:89%!important;--y:45%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-05"]{--x:60%!important;--y:42%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-06"]{--x:27%!important;--y:53%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-07"]{--x:13%!important;--y:80%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-08"]{--x:49%!important;--y:91%!important}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-09"]{--x:83%!important;--y:77%!important}
+    #sumario-astral .mapa-ponto[data-capitulo] .mapa-nome{top:50%;right:auto;bottom:auto;left:calc(100% + 6px);width:max-content;max-width:min(145px,46vw);padding:6px 8px;text-align:left;font-size:10px;line-height:1.35;opacity:0;visibility:hidden;transform:translateY(-50%)}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-03"] .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-04"] .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-09"] .mapa-nome{right:calc(100% + 6px);left:auto;text-align:right}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-02"] .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-05"] .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-08"] .mapa-nome{top:auto;right:auto;bottom:calc(100% + 5px);left:50%;max-width:min(160px,50vw);text-align:center;transform:translateX(-50%)}
+    #sumario-astral .mapa-ponto[data-capitulo]:hover .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo]:focus-visible .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo].selecionado .mapa-nome{opacity:1;visibility:visible;transform:translateY(-50%)}
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-02"]:hover .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-02"]:focus-visible .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-02"].selecionado .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-05"]:hover .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-05"]:focus-visible .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-05"].selecionado .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-08"]:hover .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-08"]:focus-visible .mapa-nome,
+    #sumario-astral .mapa-ponto[data-capitulo="pagina-08"].selecionado .mapa-nome{transform:translateX(-50%)}
+}
+
+
+@media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="abertura" id="abertura" aria-hidden="true">
+    <span class="particula" aria-hidden="true"></span><span class="particula" aria-hidden="true"></span>
+    <span class="particula" aria-hidden="true"></span><span class="particula" aria-hidden="true"></span>
+    <span class="particula" aria-hidden="true"></span>
+    <div class="abertura-conteudo">
+        <div class="abertura-selo"><span>V</span><i class="abertura-regua" aria-hidden="true"></i></div>
+        <h2 class="abertura-titulo">VIPERA</h2>
+        <span class="abertura-legenda">Livro do Sistema</span>
+    </div>
+</div>
+
+<nav class="topo">
+    <div class="logo">
+        <div class="logo-mark" aria-hidden="true"><span>V</span></div>
+        <div class="logo-text">
+            <strong>VIPERA</strong>
+            <small>Livro do Sistema</small>
+        </div>
+    </div>
+    <div class="topo-acoes">
+        <button class="btn" type="button">Menu</button>
+        <button class="btn musica-btn" id="controle-musica" type="button" aria-pressed="false" aria-label="Tocar música local">♫ Som: off</button>
+    </div>
+</nav>
+
+<div class="layout">
+    <aside class="sidebar" aria-label="Navegação do livro">
+        <span class="sidebar-label">Conteúdo</span>
+        <div class="sidebar-linha"></div>
+        <nav class="nav-livro" aria-label="Páginas">
+            <a href="#capa"><span>✧</span> Capa</a>
+            <a href="#pagina-01"><span>01</span> Sistema base</a>
+            <a href="#pagina-02"><span>02</span> Atributos</a>
+            <a href="#pagina-03"><span>03</span> Perícias</a>
+            <a href="#pagina-04"><span>04</span> Sistema de Cargos</a>
+            <a href="#pagina-05"><span>05</span> Sistema de Desvantagem</a>
+            <a href="#pagina-06"><span>06</span> Sistema de Honra</a>
+            <a href="#pagina-07"><span>07</span> Sistema de Raiva</a>
+            <a href="#pagina-08"><span>08</span> Sistema de Armamentos</a>
+            <a href="#pagina-09"><span>09</span> Ferimentos e Sobrevivência</a>
+        </nav>
+        <div class="fragmentos" id="fragmentos" hidden aria-live="polite">
+            <span class="fragmentos-titulo">Fragmentos Descobertos</span>
+            <div class="fragmentos-contagem"><span class="fragmentos-selo" aria-hidden="true"></span><span id="fragmentos-texto">0/2 fragmentos descobertos</span></div>
+            <div class="fragmentos-traco" id="fragmentos-traco" aria-hidden="true"></div>
+        </div>
+        <div class="sidebar-selo">Arquivo reservado</div>
+    </aside>
+
+    <main class="livro">
+        <header class="capa" id="capa">
+            <div class="capa-orbita" aria-hidden="true"></div>
+            <div class="capa-conteudo">
+                <div class="capa-linha"></div>
+                <small class="capa-selo">Livro do Sistema</small>
+                <h1>VIPERA</h1>
+                <div class="capa-subtitulo">Um espaço reservado para o sistema</div>
+            </div>
+            <div class="capa-rodape">Edição velada · Volume I</div>
+        </header>
+
+        <nav class="mapa-astral" id="sumario-astral" aria-label="Sumário astral do livro">
+            <header class="mapa-cabecalho">
+                <span class="mapa-etiqueta">Cartografia do sistema</span>
+                <h2 class="mapa-titulo">Sumário Astral</h2>
+                <p class="mapa-legenda">Selecione um ponto para abrir a página correspondente</p>
+            </header>
+            <div class="mapa-palco">
+                <div class="mapa-campo">
+                    <div class="mapa-estrelas" aria-hidden="true">
+                        <i class="mapa-estrela"></i><i class="mapa-estrela"></i><i class="mapa-estrela"></i><i class="mapa-estrela"></i>
+                        <i class="mapa-estrela"></i><i class="mapa-estrela"></i><i class="mapa-estrela"></i><i class="mapa-estrela"></i>
+                    </div>
+                    <svg class="mapa-linhas" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+                        <path class="linha-desktop" d="M140 85 Q285 5 420 45 T780 90 Q950 140 890 225 T600 210 Q410 185 270 265 T130 400 Q300 490 490 455 T830 385 Q900 425 940 470"></path>
+                        <path class="linha-secundaria linha-desktop" d="M420 45 Q600 25 780 90 M890 225 Q745 185 600 210 M270 265 Q180 310 130 400 M490 455 Q670 465 830 385"></path>
+                        <path class="linha-mobile" d="M140 85 Q285 5 420 45 T780 90 Q950 140 890 225 T600 210 Q410 185 270 265 T130 400 Q300 490 490 455 T830 385 Q900 425 940 470"></path>
+                        <path class="linha-secundaria linha-mobile" d="M420 45 Q600 25 780 90 M890 225 Q745 185 600 210 M270 265 Q180 310 130 400 M490 455 Q670 465 830 385"></path>
+                    </svg>
+                    <div class="mapa-centro" aria-hidden="true"><span>V</span></div>
+                    <a class="mapa-ponto" href="#pagina-01" data-capitulo="pagina-01" style="--x:15%;--y:27%" aria-label="Abrir 01. Sistema base">
+                        <span class="mapa-nome">01. Sistema base</span>
+                    </a>
+                    <a class="mapa-ponto" href="#pagina-02" data-capitulo="pagina-02" style="--x:49%;--y:14%" aria-label="Abrir 02. Atributos">
+                        <span class="mapa-nome">02. Atributos</span>
+                    </a>
+                    <a class="mapa-ponto" href="#pagina-03" data-capitulo="pagina-03" style="--x:79%;--y:35%" aria-label="Abrir 03. Perícias">
+                        <span class="mapa-nome">03. Perícias</span>
+                    </a>
+                    <a class="mapa-ponto" href="#pagina-04" data-capitulo="pagina-04" style="--x:34%;--y:70%" aria-label="Abrir 04. Sistema de Cargos">
+                        <span class="mapa-nome">04. Sistema de Cargos</span>
+                    </a>
+                    <a class="mapa-ponto" href="#pagina-05" data-capitulo="pagina-05" style="--x:69%;--y:82%" aria-label="Abrir 05. Sistema de Desvantagem">
+                        <span class="mapa-nome">05. Sistema de Desvantagem</span>
+                    </a>
+                    <a class="mapa-ponto" href="#pagina-06" data-capitulo="pagina-06" style="--x:91%;--y:78%" aria-label="Abrir 06. Sistema de Honra">
+                        <span class="mapa-nome">06. Sistema de Honra</span>
+                    </a>
+                    <a class="mapa-ponto" href="#pagina-07" data-capitulo="pagina-07" style="--x:50%;--y:91%" aria-label="Abrir 07. Sistema de Raiva">
+                        <span class="mapa-nome">07. Sistema de Raiva</span>
+                    </a>
+                    <a class="mapa-ponto" href="#pagina-08" data-capitulo="pagina-08" style="--x:15%;--y:90%" aria-label="Abrir 08. Sistema de Armamentos">
+                        <span class="mapa-nome">08. Sistema de Armamentos</span>
+                    </a>
+                    <a class="mapa-ponto" href="#pagina-09" data-capitulo="pagina-09" style="--x:15%;--y:55%" aria-label="Abrir 09. Ferimentos e Sobrevivência">
+                        <span class="mapa-nome">09. Ferimentos e Sobrevivência</span>
+                    </a>
+                </div>
+            </div>
+            <div class="mapa-controles" role="group" aria-label="Controles de zoom do mapa astral">
+                <button class="mapa-controle" type="button" data-zoom="diminuir" aria-label="Diminuir zoom">−</button>
+                <span class="mapa-zoom-valor" aria-live="polite">100%</span>
+                <button class="mapa-controle" type="button" data-zoom="aumentar" aria-label="Aumentar zoom">+</button>
+                <button class="mapa-controle" type="button" data-zoom="redefinir" aria-label="Redefinir zoom">↺</button>
+            </div>
+            <div class="mapa-confirmacao" id="mapa-confirmacao" aria-live="polite" aria-hidden="true">
+                <span class="mapa-confirmacao-texto" id="mapa-confirmacao-texto">Destino selecionado</span>
+                <button class="mapa-confirmar" id="mapa-confirmar" type="button">Confirmar destino</button>
+                <button class="mapa-cancelar" id="mapa-cancelar" type="button">Cancelar</button>
+            </div>
+        </nav>
+
+        <section class="pagina" id="pagina-01" aria-label="Sistema base">
+            <div class="pagina-indice"><span>01</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>01. Sistema base</h2>
+                <p>O Sistema base estabelece os princípios utilizados para resolver ações no VIPERA. As demais mecânicas dependem desses fundamentos e devem ser interpretadas de acordo com os procedimentos apresentados neste capítulo.</p>
+
+                <h3>1.1. Fundamentos das ações</h3>
+                <p>Durante uma sessão, os personagens podem tentar realizar diferentes ações. Algumas podem ser resolvidas diretamente pela interpretação e pela descrição da situação; outras exigem a aplicação de regras para determinar seu resultado.</p>
+                <p>Quando uma ação apresenta incerteza relevante, o mestre deve avaliar se é necessário realizar um teste. Caso seja, devem ser identificados o atributo, a perícia e a dificuldade apropriados à situação.</p>
+
+                <h3>1.2. Testes</h3>
+                <p>O VIPERA utiliza um dado de vinte faces, representado pela notação 1d20, para resolver ações cujo resultado seja incerto.</p>
+                <p>Quando um teste for necessário, o jogador realiza a rolagem e soma os modificadores pertinentes à ação. O resultado é comparado à dificuldade estabelecida pelo mestre, considerando também o contexto e as possíveis consequências da tentativa.</p>
+                <p>A fórmula básica de um teste é:</p>
+                <div class="formula-teste">1d20 + 2 + Atributo + Perícia</div>
+                <p>O atributo representa a capacidade do personagem utilizada na ação, enquanto a perícia representa seu treinamento ou conhecimento específico, quando aplicável.</p>
+
+                <h3>1.3. Resultados naturais</h3>
+                <p>O resultado natural corresponde ao número obtido diretamente no dado, antes da aplicação dos modificadores.</p>
+                <p>No VIPERA, um resultado natural de 20 é considerado crítico, enquanto um resultado natural de 1 representa uma falha crítica. Esses resultados não devem ser confundidos com o resultado final calculado após a soma do atributo e da perícia.</p>
+                <p>Os efeitos específicos dos resultados críticos devem seguir as regras próprias estabelecidas para cada situação.</p>
+            </article>
+        </section>
+
+        <section class="pagina" id="pagina-02" aria-label="02. Atributos">
+            <div class="pagina-indice"><span>02</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>02. Atributos</h2>
+                <p>Os atributos representam as capacidades fundamentais de um personagem. Eles descrevem suas aptidões físicas, mentais e sociais, influenciando a maneira como ele enfrenta desafios e reage às situações encontradas durante uma sessão.</p>
+                <p>No VIPERA, cada atributo possui uma função própria. A escolha de quais capacidades desenvolver ajuda a definir as características do personagem e determina quais tipos de ação ele está mais preparado para realizar.</p>
+                <p>Os atributos são utilizados nos testes em conjunto com as perícias pertinentes à ação. Entretanto, possuir um valor elevado em determinado atributo não significa dominar automaticamente todas as atividades relacionadas a ele. O contexto da ação e o treinamento representado pelas perícias continuam sendo relevantes.</p>
+
+                <h3>2.1. Força</h3>
+                <p>A Força representa a capacidade física do personagem de exercer potência muscular, aplicar força e superar obstáculos que dependam diretamente de esforço físico.</p>
+                <p>Esse atributo está relacionado a ações como empurrar objetos pesados, arrombar estruturas, conter alguém pela força ou enfrentar situações que exijam potência muscular.</p>
+                <p>Um personagem com Força elevada possui maior capacidade para lidar com desafios que dependam dessa característica, enquanto um valor menor representa limitações relativas à aplicação de força física.</p>
+                <div class="exemplo-investigacao"><p><strong>Exemplo:</strong> um personagem tenta deslocar um armário pesado para liberar uma passagem. A Força pode ser utilizada no teste, conforme as circunstâncias da ação.</p></div>
+
+                <h3>2.2. Destreza</h3>
+                <p>A Destreza representa a coordenação motora, a precisão dos movimentos e a capacidade de executar ações físicas que exigem controle e agilidade.</p>
+                <p>Esse atributo pode ser relevante ao realizar movimentos delicados, manipular objetos com precisão, executar tarefas manuais ou controlar os próprios movimentos em situações que exijam coordenação.</p>
+                <p>A Destreza não representa simplesmente velocidade. Ela está relacionada principalmente à precisão e ao controle com que o personagem executa uma ação.</p>
+                <div class="exemplo-investigacao"><p><strong>Exemplo:</strong> um personagem tenta desarmar um mecanismo delicado sem danificar suas peças. A Destreza pode ser utilizada, dependendo da natureza da tarefa.</p></div>
+
+                <h3>2.3. Inteligência</h3>
+                <p>A Inteligência representa a capacidade de raciocinar, compreender informações, estabelecer relações lógicas e solucionar problemas.</p>
+                <p>Esse atributo é relevante em situações que exigem análise, interpretação de informações, elaboração de hipóteses ou compreensão de fenômenos complexos.</p>
+                <p>A Inteligência pode ajudar um personagem a interpretar evidências e compreender o funcionamento de algo, mas não substitui automaticamente conhecimentos específicos ou treinamentos representados pelas perícias.</p>
+                <div class="exemplo-investigacao"><p><strong>Exemplo:</strong> um personagem encontra documentos contraditórios durante uma investigação e tenta identificar uma inconsistência entre as informações. A Inteligência pode ser utilizada no teste.</p></div>
+
+                <h3>2.4. Vigor</h3>
+                <p>O Vigor representa a resistência física, a vitalidade e a capacidade do personagem de suportar esforço e condições que desgastem o corpo.</p>
+                <p>Esse atributo está relacionado à capacidade de resistir a atividades fisicamente exigentes, suportar desgaste e enfrentar situações que coloquem à prova a condição física do personagem.</p>
+                <div class="exemplo-investigacao"><p><strong>Exemplo:</strong> um personagem precisa continuar correndo mesmo após um longo período de esforço físico. O Vigor pode ser utilizado no teste, conforme as circunstâncias da ação.</p></div>
+
+                <h3>2.5. Vontade</h3>
+                <p>A Vontade representa a determinação do personagem para perseguir objetivos, persistir diante de dificuldades e resistir a situações que coloquem sua firmeza de propósito à prova.</p>
+                <p>Esse atributo pode ser relevante quando o personagem precisa continuar agindo apesar de obstáculos, manter-se comprometido com uma decisão ou enfrentar circunstâncias que exijam determinação.</p>
+                <p>A Vontade não deve ser confundida com o Autocontrole. Enquanto a Vontade está relacionada à determinação e à persistência, o Autocontrole está relacionado à regulação das próprias reações.</p>
+                <div class="exemplo-investigacao"><p><strong>Exemplo:</strong> um personagem enfrenta uma situação extremamente difícil e precisa manter sua determinação para continuar tentando alcançar um objetivo. A Vontade pode ser pertinente ao teste.</p></div>
+
+                <h3>2.6. Autocontrole</h3>
+                <p>O Autocontrole representa a capacidade do personagem de regular suas próprias reações, controlar impulsos e manter a compostura diante de situações emocionalmente intensas.</p>
+                <p>Esse atributo está relacionado à maneira como o personagem administra suas respostas imediatas, especialmente quando está sob pressão ou diante de circunstâncias que poderiam comprometer sua capacidade de agir de maneira deliberada.</p>
+                <p>Ter Autocontrole não significa não sentir medo, raiva ou ansiedade. Significa possuir capacidade de administrar as próprias reações, conforme as características do personagem e a situação enfrentada.</p>
+                <div class="exemplo-investigacao"><p><strong>Exemplo:</strong> um personagem é provocado durante uma negociação delicada e precisa evitar uma reação impulsiva que prejudicaria seus objetivos. O Autocontrole pode ser utilizado, dependendo das circunstâncias.</p></div>
+
+                <h3>2.7. Carisma</h3>
+                <p>O Carisma representa a presença social do personagem e a maneira como ele se expressa, estabelece relações e influencia as interações com outras pessoas.</p>
+                <p>Esse atributo pode ser relevante em situações que envolvam comunicação, negociação, persuasão ou a capacidade de causar determinada impressão em outras pessoas.</p>
+                <p>O Carisma não significa necessariamente beleza, simpatia ou popularidade. Um personagem pode ser intimidador, reservado ou pouco agradável e ainda assim possuir uma presença marcante.</p>
+                <div class="exemplo-investigacao"><p><strong>Exemplo:</strong> um personagem tenta convencer uma testemunha a conversar com o grupo, utilizando sua maneira de se expressar e sua presença social. O Carisma pode ser pertinente ao teste.</p></div>
+
+                <h3>2.8. Utilização dos atributos</h3>
+                <p>Durante um teste, o atributo utilizado depende da ação declarada pelo jogador e da abordagem escolhida para realizá-la.</p>
+                <p>O mestre deve considerar a capacidade empregada pelo personagem, as circunstâncias da situação e a relação entre o atributo e a ação pretendida.</p>
+                <p>Uma mesma situação pode permitir abordagens diferentes. Um personagem que tenta superar um obstáculo pode utilizar a Força para deslocá-lo ou a Inteligência para encontrar uma maneira de contorná-lo, desde que a abordagem descrita seja coerente com as circunstâncias.</p>
+                <p>Os atributos não determinam sozinhos tudo o que um personagem consegue fazer. As perícias, o contexto e a maneira como o jogador descreve sua ação também são relevantes.</p>
+                <p>Para consultar a fórmula dos testes, a dificuldade padrão e as regras de sucesso e falha, consulte o capítulo 01. Sistema Base.</p>
+
+                <h3>2.9. Distribuição e limites</h3>
+                <p>Os atributos possuem valores numéricos registrados na ficha do personagem. Esses valores representam suas capacidades dentro do sistema e influenciam as ações correspondentes.</p>
+                <p>O limite estabelecido para os atributos é 20 pontos. A distribuição inicial e as regras para desenvolver essas capacidades devem seguir os procedimentos definidos nos capítulos de Criação de Personagem e Progressão.</p>
+                <p>A distribuição dos pontos deve refletir as características que o jogador deseja representar. Um personagem especializado em atividades físicas pode priorizar determinados atributos, enquanto outro, voltado à investigação ou à interação social, pode desenvolver capacidades diferentes.</p>
+                <p>Não existe uma distribuição que represente todas as possibilidades de personagem. A escolha deve considerar o conceito construído pelo jogador e as necessidades da campanha.</p>
+
+                <h3>Considerações finais</h3>
+                <p>Os atributos são uma das bases mecânicas do VIPERA, mas não definem sozinhos tudo o que um personagem consegue fazer.</p>
+                <p>A interpretação, a abordagem escolhida, as perícias e as circunstâncias da situação também influenciam a resolução das ações.</p>
+                <p>O objetivo dos atributos é oferecer uma referência consistente para representar as capacidades dos personagens, permitindo que suas diferenças tenham significado durante as sessões.</p>
+            </article>
+        </section>
+
+        <section class="pagina" id="pagina-03" aria-label="03. Perícias">
+            <div class="pagina-indice"><span>03</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>03. Perícias</h2>
+                <p>As perícias representam o treinamento, a experiência prática e os conhecimentos específicos adquiridos pelo personagem ao longo da vida. Elas complementam os atributos e ajudam a determinar como ele executa determinadas ações.</p>
+
+                <h3>3.1. O que são perícias?</h3>
+                <p>Os atributos representam capacidades gerais do personagem; as perícias representam conhecimentos e treinamentos aplicados a atividades específicas. Em conjunto, esses elementos ajudam a descrever tanto a aptidão do personagem quanto sua experiência ao realizar uma tarefa.</p>
+                <p>Uma perícia não substitui o atributo relacionado à ação. Ela expressa o aprendizado e a prática que o personagem desenvolveu naquela atividade, enquanto o atributo indica a capacidade geral que está sendo empregada.</p>
+
+                <h3>3.2. A relação entre atributos e perícias</h3>
+                <p>Ao resolver uma ação, o teste deve considerar tanto a capacidade relevante do personagem quanto o treinamento necessário para executá-la. A combinação apropriada depende da situação, da abordagem declarada pelo jogador e da decisão do mestre.</p>
+                <p>Uma mesma situação pode permitir abordagens diferentes e, portanto, envolver capacidades ou treinamentos distintos. Cabe ao mestre considerar o que o personagem pretende fazer e se a abordagem descrita é coerente com as circunstâncias.</p>
+                <p>O jogador deve explicar como seu personagem tenta alcançar o objetivo. Essa descrição ajuda o mestre a identificar quais aspectos da ficha são pertinentes, sem limitar a ação a uma única maneira de resolver o problema.</p>
+
+                <h3>3.3. Utilização durante as sessões</h3>
+                <p>As perícias podem ser relevantes em diferentes situações, incluindo investigações, interações sociais, atividades físicas, tarefas técnicas e confrontos. Sua aplicação depende da ação pretendida e do contexto em que ela acontece.</p>
+                <p>Nem toda ação precisa de um teste. Quando uma tarefa for simples, segura e não apresentar consequências relevantes em caso de falha, o mestre pode permitir que ela seja realizada sem rolagem. Quando houver incerteza e consequências significativas, poderá solicitar um teste para determinar o resultado.</p>
+                <p>O teste deve contribuir para a cena, ajudando a resolver uma incerteza importante. O mestre define quando ele é necessário e considera as circunstâncias da tentativa ao determinar sua dificuldade e suas consequências.</p>
+
+                <h3>3.4. Níveis de treinamento</h3>
+                <p>Os valores registrados nas perícias representam o grau de treinamento e a experiência do personagem naquela atividade. Eles indicam o quanto essa prática faz parte dos conhecimentos e das capacidades desenvolvidas por ele.</p>
+                <p>Os procedimentos para interpretar esses valores devem seguir as regras estabelecidas na parte do livro dedicada à ficha e à progressão do personagem. Este capítulo apresenta apenas o papel geral das perícias e não estabelece uma escala ou valores próprios.</p>
+
+                <h3>3.5. Perícias e interpretação</h3>
+                <p>Possuir treinamento em uma atividade não garante sucesso automático. As circunstâncias, a dificuldade, a abordagem escolhida e os resultados dos testes continuam relevantes para determinar o que acontece.</p>
+                <p>Da mesma forma, não possuir treinamento especializado não significa necessariamente que o personagem seja incapaz de tentar uma atividade. A possibilidade de agir depende das regras existentes para a perícia e da natureza da tarefa. O mestre deve considerar se a tentativa é possível nas circunstâncias e como ela será resolvida.</p>
+                <p>A interpretação do jogador também importa: descrever a intenção e o método empregado permite que a ação seja avaliada de acordo com o que o personagem realmente está tentando fazer.</p>
+
+                <h3>Considerações finais</h3>
+                <p>As perícias representam a experiência prática dos personagens e ampliam suas possibilidades de ação. Elas complementam os atributos, mas não os substituem, assim como as regras não substituem a interpretação dos jogadores. Em conjunto, esses elementos ajudam a resolver ações de maneira coerente com o personagem e com a situação.</p>
+            </article>
+        </section>
+
+        <section class="pagina" id="pagina-04" aria-label="04. Sistema de Cargos">
+            <div class="pagina-indice"><span>04</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>04. Sistema de Cargos</h2>
+                <p>Os cargos fazem parte da identidade e da formação dos personagens no VIPERA. Eles representam funções, especializações ou áreas de atuação dentro do universo do sistema e ajudam a estabelecer características iniciais do personagem, influenciando aspectos de sua ficha conforme as regras aplicáveis.</p>
+
+                <h3>4.1. O que são cargos?</h3>
+                <p>Um cargo representa uma dimensão da função ou da especialização de um personagem. Ele permite diferenciar personagens que podem ter capacidades, experiências e papéis distintos dentro da campanha.</p>
+                <p>O cargo não determina toda a personalidade, a história ou o comportamento do personagem. Ele é apenas uma parte de sua identidade e de sua função na campanha, que também são construídas por suas escolhas e experiências.</p>
+
+                <h3>4.2. Escolha do cargo</h3>
+                <p>Durante a criação da ficha, o jogador escolhe o cargo do personagem entre as opções disponibilizadas pelo mestre, respeitando as regras do VIPERA. As descrições e regras próprias de cada cargo devem ser consultadas em sua seção específica, quando disponível.</p>
+
+                <h3>4.3. Influência na ficha do personagem</h3>
+                <p>De acordo com suas regras próprias, os cargos podem influenciar características mecânicas específicas da ficha. A vida inicial do cargo participa do cálculo dos Pontos de Vida do personagem. Os valores estabelecidos são:</p>
+                <table class="tabela-cargos">
+                    <thead><tr><th scope="col">Cargo</th><th scope="col">Vida inicial</th></tr></thead>
+                    <tbody>
+                        <tr><td>Lutador</td><td>40</td></tr>
+                        <tr><td>Investigador</td><td>25</td></tr>
+                        <tr><td>Atirador</td><td>30</td></tr>
+                        <tr><td>Técnico</td><td>20</td></tr>
+                    </tbody>
+                </table>
+                <p>Esses valores correspondem à vida inicial associada a cada cargo e devem ser considerados no cálculo dos Pontos de Vida conforme as regras do sistema. Outros efeitos dependem das regras próprias estabelecidas para cada cargo.</p>
+
+                <h3>4.4. Cargos e atributos</h3>
+                <p>O cargo deve ser considerado em conjunto com os atributos do personagem. Enquanto o cargo representa sua função ou especialização, os atributos expressam suas capacidades individuais.</p>
+                <p>Assim, dois personagens com o mesmo cargo podem apresentar características bastante diferentes, de acordo com suas escolhas e experiências. O cargo não substitui nem determina os atributos do personagem.</p>
+
+                <h3>4.5. Cargos e interpretação</h3>
+                <p>O cargo pode servir como referência narrativa para o jogador desenvolver o histórico do personagem, suas experiências e sua maneira de atuar. Essa referência pode ajudar a integrar o personagem ao universo e às situações da campanha.</p>
+                <p>Essa orientação não impõe uma personalidade fixa. A forma de pensar, agir e se relacionar do personagem continua sendo definida por sua história e pelas escolhas interpretativas do jogador.</p>
+
+                <h3>Considerações finais</h3>
+                <p>Os cargos ajudam a diferenciar os personagens e complementam sua construção mecânica e narrativa. Eles não substituem os atributos, as perícias ou as escolhas interpretativas dos jogadores, mas oferecem mais um elemento para definir quem cada personagem é e como participa da campanha.</p>
+            </article>
+        </section>
+
+        <section class="pagina" id="pagina-05" aria-label="05. Sistema de Desvantagem">
+            <div class="pagina-indice"><span>05</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>05. Sistema de Desvantagem</h2>
+                <p>A desvantagem representa a falta de treinamento em uma perícia necessária para determinada ação. Quando uma perícia exigida pelo teste possui 0 pontos, o personagem realiza a rolagem com desvantagem.</p>
+
+                <h3>5.1. Regra geral</h3>
+                <p>Se o personagem precisar realizar um teste utilizando uma perícia na qual possui 0 pontos, deverá rolar <strong>2d20 e utilizar o menor resultado</strong> no cálculo final do teste.</p>
+
+                <h3>5.2. Perícia sem pontos</h3>
+                <p>Possuir 0 pontos em uma perícia não impede automaticamente o personagem de tentar uma ação. Porém, se essa perícia for exigida pelo teste, a rolagem será feita em desvantagem.</p>
+                <p>Se o personagem possuir 1 ou mais pontos na perícia exigida, não sofre desvantagem por falta de pontos naquela perícia.</p>
+
+                <h3>5.3. Testes que utilizam várias perícias</h3>
+                <p>Algumas ações podem exigir mais de uma perícia. Se pelo menos uma das perícias exigidas possuir 0 pontos, o personagem rola 2d20 e utiliza o menor resultado.</p>
+                <p>Se duas ou mais perícias exigidas estiverem zeradas, a regra continua igual: rolam-se somente 2d20, escolhendo o menor resultado. A quantidade de perícias zeradas não aumenta a quantidade de dados.</p>
+
+                <h3>5.4. Exemplo prático: ataque com arma branca</h3>
+                <div class="exemplo-investigacao">
+                    <p>Um personagem tenta atacar um inimigo utilizando uma arma branca. Para realizar o ataque, o teste exige a perícia <strong>Armas Brancas</strong>.</p>
+                    <ul>
+                        <li>Com 0 pontos em Armas Brancas, o personagem rola 2d20 e utiliza o menor resultado.</li>
+                        <li>Com 1 ou mais pontos em Armas Brancas, não sofre desvantagem por falta de pontos nessa perícia.</li>
+                    </ul>
+                </div>
+                <p>Caso o teste exija outras perícias além de Armas Brancas, todas as perícias exigidas devem ser verificadas. Se alguma delas estiver zerada, aplica-se a mesma regra de desvantagem: rolar 2d20 e utilizar o menor resultado.</p>
+
+                <h3>5.5. Cálculo do teste em desvantagem</h3>
+                <p>Para resolver o teste, siga esta sequência:</p>
+                <ol>
+                    <li>Identifique todas as perícias exigidas pelo teste.</li>
+                    <li>Verifique se o personagem possui 0 pontos em alguma delas.</li>
+                    <li>Se houver alguma perícia zerada, role 2d20.</li>
+                    <li>Escolha o menor resultado dos dois dados.</li>
+                    <li>Utilize esse resultado no cálculo normal do teste, somando os atributos e os pontos das perícias conforme as regras do sistema.</li>
+                </ol>
+                <p>A desvantagem altera apenas a escolha do resultado dos dados. Ela não substitui nem modifica a fórmula normal do teste.</p>
+
+                <h3>Considerações finais</h3>
+                <p>A desvantagem representa a falta de treinamento em uma perícia necessária para determinada ação. Mesmo quando várias perícias exigidas estão zeradas, a desvantagem não acumula: o personagem rola somente 2d20 e utiliza o menor resultado.</p>
+            </article>
+        </section>
+
+        <section class="pagina" id="pagina-06" aria-label="06. Sistema de Honra">
+            <div class="pagina-indice"><span>06</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>06. Sistema de Honra</h2>
+                <p>A Honra é um sistema exclusivamente narrativo que representa os princípios, a palavra, a lealdade e a reputação de um personagem.</p>
+                <p>Ela não possui pontos, bônus ou penalidades numéricas.</p>
+                <p>A Honra é construída através das ações do personagem e pode mudar conforme suas decisões. Suas consequências são determinadas pela narrativa e pela maneira como outras pessoas interpretam seus atos.</p>
+                <blockquote class="honra-citacao honra-citacao-inicial">A Honra não é aquilo que o personagem diz possuir. É aquilo que suas ações demonstram.</blockquote>
+
+                <h3>6.1. Princípios e Código de Honra</h3>
+                <p>Todo personagem pode possuir princípios que considera importantes ou inegociáveis.</p>
+                <p>Esses princípios podem ser pessoais, familiares, religiosos, profissionais ou relacionados à sua própria visão de mundo.</p>
+                <p>Exemplos:</p>
+                <ul>
+                    <li>Nunca abandonar um companheiro.</li>
+                    <li>Sempre cumprir uma promessa.</li>
+                    <li>Nunca atacar alguém indefeso.</li>
+                    <li>Nunca mentir para quem confia em mim.</li>
+                    <li>Proteger minha família acima de qualquer coisa.</li>
+                    <li>Respeitar aqueles que lutam honestamente.</li>
+                    <li>Nunca trair alguém que lutou ao meu lado.</li>
+                </ul>
+                <p>O Código de Honra não precisa representar algo moralmente correto.</p>
+                <p>Um personagem cruel pode possuir um forte senso de honra se seguir rigorosamente seus próprios princípios.</p>
+                <p>Da mesma forma, um personagem bondoso pode perder sua honra caso traia aqueles que confiaram nele.</p>
+
+                <h3>6.2. Como a Honra muda</h3>
+                <p>A Honra muda através de ações significativas.</p>
+                <p>Atitudes positivas podem fortalecer a confiança que outras pessoas possuem no personagem.</p>
+                <p>Atitudes negativas podem destruir essa confiança.</p>
+                <h4>Ações que podem fortalecer a Honra</h4>
+                <ul>
+                    <li>Cumprir uma promessa difícil.</li>
+                    <li>Proteger um aliado quando seria mais fácil abandoná-lo.</li>
+                    <li>Assumir responsabilidade pelos próprios erros.</li>
+                    <li>Defender alguém indefeso.</li>
+                    <li>Demonstrar lealdade em uma situação perigosa.</li>
+                    <li>Respeitar um inimigo derrotado.</li>
+                    <li>Sacrificar algo importante para cumprir sua palavra.</li>
+                    <li>Ajudar alguém sem esperar recompensa.</li>
+                </ul>
+                <h4>Ações que podem prejudicar a Honra</h4>
+                <ul>
+                    <li>Quebrar uma promessa importante.</li>
+                    <li>Trair um aliado.</li>
+                    <li>Abandonar alguém que dependia do personagem.</li>
+                    <li>Atacar alguém indefeso sem justificativa.</li>
+                    <li>Matar um civil.</li>
+                    <li>Mentir deliberadamente para alguém que confiava no personagem.</li>
+                    <li>Usar a confiança de outra pessoa para benefício próprio.</li>
+                    <li>Abandonar seus próprios princípios quando eles deixam de ser convenientes.</li>
+                </ul>
+                <p>A gravidade da consequência depende do contexto.</p>
+                <p>Um pequeno ato de desonestidade não necessariamente destrói a Honra de alguém.</p>
+                <p>Porém, uma traição grave pode mudar completamente a maneira como o personagem é visto.</p>
+
+                <h3>6.3. Testemunhas e informação</h3>
+                <p>Uma ação não precisa afetar a Honra do personagem se ninguém souber que ela aconteceu.</p>
+                <p>Se um personagem realiza um ato heroico sozinho, sem testemunhas e sem deixar evidências, talvez ninguém saiba que aquilo aconteceu.</p>
+                <p>Da mesma forma, se ele cometer um crime escondido, sua reputação pode permanecer intacta até que a verdade seja descoberta.</p>
+                <p>Por isso, a informação também faz parte do sistema.</p>
+                <p>Rumores, testemunhas, documentos, câmeras, sobreviventes e relatos podem fazer uma ação se espalhar pelo mundo.</p>
+                <p>Uma mentira também pode alterar a maneira como as pessoas enxergam o personagem caso seja considerada verdadeira.</p>
+
+                <h3>6.4. Honra e reputação</h3>
+                <p>Honra e reputação não são exatamente a mesma coisa.</p>
+                <p>Honra representa os princípios, a palavra e a lealdade demonstrados pelo personagem.</p>
+                <p>Reputação representa aquilo que outras pessoas acreditam sobre ele.</p>
+                <p>Um personagem pode possuir honra e, ainda assim, ter uma péssima reputação.</p>
+                <p>Da mesma forma, alguém pode possuir uma excelente reputação enquanto esconde atos desonrosos.</p>
+                <p>A reputação também pode ser diferente dependendo do grupo.</p>
+                <div class="honra-exemplo">
+                    <p><strong>Exemplo:</strong> Um personagem mata um membro de O Arquivo.</p>
+                    <blockquote><p><strong>Para a Igreja:</strong> Ele eliminou um inimigo.</p>
+                    <p><strong>Para O Arquivo:</strong> Ele é um assassino.</p>
+                    <p><strong>Para os familiares da vítima:</strong> Ele matou alguém que amávamos.</p>
+                    <p><strong>Para seus companheiros:</strong> Ele fez o que precisava ser feito.</p></blockquote>
+                </div>
+                <p>Assim, a mesma ação pode gerar consequências completamente diferentes.</p>
+
+                <h3>6.5. Estados de Honra</h3>
+                <p>Embora a Honra não tenha números, o Mestre pode utilizar estados narrativos para representar sua situação atual.</p>
+                <div class="honra-estados">
+                    <div class="honra-estado"><h4>Honrado</h4><p>O personagem é conhecido por cumprir sua palavra e respeitar seus princípios.</p><p>Pessoas podem confiar nele, pedir sua ajuda e reconhecer sua palavra como algo de valor.</p></div>
+                    <div class="honra-estado"><h4>Respeitado</h4><p>O personagem possui uma reputação positiva, mas ainda não necessariamente é visto como alguém de grande importância.</p><p>Seus aliados confiam nele e sua presença pode abrir algumas portas.</p></div>
+                    <div class="honra-estado"><h4>Abalado</h4><p>Algumas ações recentes fizeram outras pessoas questionarem o personagem.</p><p>Aliados podem começar a desconfiar.</p><p>Promessas passam a ser cobradas com mais cuidado.</p></div>
+                    <div class="honra-estado"><h4>Desonrado</h4><p>O personagem quebrou princípios importantes ou traiu a confiança de outras pessoas.</p><p>Alguns aliados podem abandoná-lo.</p><p>Organizações podem cortar relações.</p><p>Pessoas que antes o respeitavam podem se recusar a ajudá-lo.</p></div>
+                    <div class="honra-estado"><h4>Infame</h4><p>A reputação do personagem foi profundamente prejudicada.</p><p>Seu nome pode estar associado a crimes, traições ou atos considerados imperdoáveis por determinadas comunidades.</p><p>Pessoas podem evitá-lo, denunciá-lo ou tentar capturá-lo.</p><p>Antigos aliados podem passar a tratá-lo como uma ameaça.</p></div>
+                </div>
+                <p class="nota-capitulo"><strong>Importante:</strong> esses estados são referências narrativas, não níveis numéricos. Não crie uma escala de pontos, requisitos automáticos ou progressão obrigatória entre eles.</p>
+
+                <h3>6.6. Aliados e inimigos</h3>
+                <p>A perda de Honra pode alterar diretamente os relacionamentos do personagem.</p>
+                <p>Um aliado não precisa continuar sendo aliado para sempre.</p>
+                <p>Se o personagem cometer um ato que contradiga os princípios daquele aliado, a relação pode mudar.</p>
+                <div class="honra-exemplo"><p><strong>Exemplo:</strong> O personagem mata um civil indefeso.</p>
+                    <p>Seu companheiro sempre acreditou que pessoas inocentes deveriam ser protegidas.</p>
+                    <p>Ao descobrir o ocorrido, ele confronta o personagem.</p>
+                    <p>Se o personagem não demonstrar arrependimento, o companheiro pode abandonar o grupo.</p>
+                </div>
+                <p>Dependendo da gravidade do ocorrido, a relação pode evoluir para:</p>
+                <p class="honra-relacao">Aliado → Desconfiado → Rival → Inimigo</p>
+                <p>Essa progressão é uma possibilidade narrativa, não uma sequência obrigatória.</p>
+                <p>Isso não precisa acontecer imediatamente.</p>
+                <p>O Mestre pode permitir que a relação seja desenvolvida durante a narrativa, considerando a gravidade do ato, os princípios do aliado, as circunstâncias e as atitudes posteriores do personagem.</p>
+
+                <h3>6.7. Honra entre organizações</h3>
+                <p>Organizações também podem reagir à Honra de um personagem.</p>
+                <div class="honra-colunas">
+                    <div><p><strong>Uma organização que confia no personagem pode:</strong></p><ul>
+                        <li>Oferecer informações.</li><li>Conceder acesso a determinados lugares.</li><li>Solicitar sua ajuda.</li><li>Proteger o personagem.</li><li>Oferecer missões.</li><li>Interceder por ele.</li>
+                    </ul></div>
+                    <div><p><strong>Uma organização que considera o personagem desonrado pode:</strong></p><ul>
+                        <li>Recusar ajuda.</li><li>Cancelar contratos.</li><li>Impedir seu acesso.</li><li>Espalhar sua reputação negativa.</li><li>Colocar uma recompensa por sua captura.</li><li>Enviar membros para confrontá-lo.</li>
+                    </ul></div>
+                </div>
+                <p>Uma mudança de relação não precisa afetar todas as organizações ao mesmo tempo.</p>
+
+                <h3>6.8. Promessas</h3>
+                <p>Promessas possuem um peso especial dentro do sistema.</p>
+                <p>Quanto mais importante for uma promessa, maior pode ser sua consequência caso seja quebrada.</p>
+                <div class="honra-promessas">
+                    <div><h4>Promessa pequena</h4><blockquote>Vou entregar esta mensagem.</blockquote><p>Quebrá-la pode causar apenas uma pequena perda de confiança.</p></div>
+                    <div><h4>Promessa importante</h4><blockquote>Eu vou proteger sua família.</blockquote><p>Quebrá-la pode destruir uma relação.</p></div>
+                    <div><h4>Juramento</h4><blockquote>Enquanto eu estiver vivo, ninguém tocará nela.</blockquote><p>Quebrar um juramento pode provocar uma grande perda de Honra e alterar permanentemente a relação com aqueles envolvidos.</p></div>
+                </div>
+                <p>Essas consequências devem ser determinadas narrativamente, sem atribuição de valores numéricos.</p>
+
+                <h3>6.9. Redenção</h3>
+                <p>Perder a Honra não significa que ela não possa ser recuperada.</p>
+                <p>Um personagem desonrado pode tentar reconstruir sua reputação através de suas ações.</p>
+                <p>Entretanto, pedir desculpas não apaga automaticamente o que aconteceu.</p>
+                <p>Aqueles que perderam a confiança do personagem podem exigir provas de mudança.</p>
+                <p>A redenção deve acontecer através da narrativa.</p>
+                <p>Um personagem que traiu seus companheiros pode precisar protegê-los novamente.</p>
+                <p>Um personagem que abandonou alguém pode precisar retornar quando ninguém mais estiver disposto a ajudar.</p>
+                <p>Um personagem conhecido por matar inocentes pode precisar provar, através de suas próprias ações, que mudou.</p>
+                <p>Não crie um procedimento numérico para recuperar a Honra.</p>
+
+                <h3>6.10. Honra não é moralidade</h3>
+                <p>Honra não determina se um personagem é bom ou mau.</p>
+                <p>Ela representa principalmente:</p>
+                <ul><li>Palavra.</li><li>Lealdade.</li><li>Princípios.</li><li>Confiança.</li><li>Responsabilidade.</li><li>Reputação.</li></ul>
+                <p>Um criminoso pode ser extremamente honrado dentro de seu próprio código.</p>
+                <p>Um herói pode ser considerado desonrado por aqueles que acreditam que ele traiu seus princípios.</p>
+                <p>Tudo depende daquilo que o personagem defende e da maneira como suas ações são interpretadas.</p>
+
+                <h3>6.11. Regra principal</h3>
+                <blockquote class="honra-citacao honra-citacao-final">Toda ação importante pode deixar uma marca.<br><br>Se essa ação for conhecida, ela pode mudar a maneira como o mundo enxerga o personagem.<br><br>E quando a confiança desaparece, antigos aliados podem se tornar rivais — ou até inimigos.</blockquote>
+            </article>
+        </section>
+
+        <section class="pagina" id="pagina-07" aria-label="07. Sistema de Raiva">
+            <div class="pagina-indice"><span>07</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>07. Sistema de Raiva</h2>
+                <p>O Sistema de Raiva representa a intensificação emocional de um personagem durante situações extremas. A raiva oferece benefícios reais em combate, acompanhados de limitações progressivas que podem afetar seus testes e decisões.</p>
+                <p>Ela não é ativada automaticamente em qualquer conflito. O contexto, a personalidade do personagem e a gravidade do acontecimento devem ser considerados pelo Mestre, em diálogo com a interpretação do jogador.</p>
+
+                <h3>7.1. Situações que podem provocar raiva</h3>
+                <p>A raiva pode surgir ou se intensificar diante de acontecimentos significativos para o personagem, como:</p>
+                <ul>
+                    <li>A morte ou o ferimento grave de alguém importante.</li>
+                    <li>Uma traição.</li>
+                    <li>Uma humilhação intensa.</li>
+                    <li>Uma perda significativa.</li>
+                    <li>Uma provocação pessoal.</li>
+                    <li>Uma situação que entre em conflito direto com os princípios do personagem.</li>
+                </ul>
+                <p>Esses exemplos não obrigam a ativação do sistema. A reação depende da situação e de como ela afeta aquele personagem.</p>
+
+                <h3>7.2. Estágios da raiva</h3>
+                <p>Cada estágio combina modificadores mecânicos e efeitos narrativos. O bônus de ataque é somado ao resultado do teste de ataque corpo a corpo; o bônus de dano é aplicado separadamente ao dano causado, conforme as regras de dano do VIPERA. Penalidades são aplicadas aos testes e ações indicados em cada estágio.</p>
+                <div class="raiva-estagios">
+                    <section class="raiva-estagio">
+                        <h4>Estágio I — Irritado</h4>
+                        <p>Representa o início da intensificação emocional.</p>
+                        <p class="raiva-efeito"><strong>Bônus de ataque:</strong> +2 em testes de ataque corpo a corpo.</p>
+                        <p class="raiva-penalidade"><strong>Penalidade:</strong> -2 em testes que exijam calma, concentração ou delicadeza.</p>
+                    </section>
+                    <section class="raiva-estagio">
+                        <h4>Estágio II — Enfurecido</h4>
+                        <p>O personagem passa a lutar de maneira mais agressiva.</p>
+                        <p class="raiva-efeito"><strong>Bônus de ataque:</strong> +3 em testes de ataque corpo a corpo.</p>
+                        <p class="raiva-efeito"><strong>Bônus de dano:</strong> +2 no dano de ataques corpo a corpo.</p>
+                        <p class="raiva-penalidade"><strong>Penalidades:</strong> -3 em testes de Autocontrole e -3 em testes que exijam precisão ou concentração.</p>
+                    </section>
+                    <section class="raiva-estagio">
+                        <h4>Estágio III — Furioso</h4>
+                        <p>A raiva começa a interferir significativamente nas decisões do personagem.</p>
+                        <p class="raiva-efeito"><strong>Bônus de ataque:</strong> +4 em testes de ataque corpo a corpo.</p>
+                        <p class="raiva-efeito"><strong>Bônus de dano:</strong> +4 no dano de ataques corpo a corpo.</p>
+                        <p class="raiva-efeito"><strong>Redução de dano:</strong> 25% do dano físico recebido.</p>
+                        <p class="raiva-penalidade"><strong>Penalidade:</strong> -4 em testes de Autocontrole.</p>
+                        <p class="raiva-narrativa"><strong>Consequência narrativa:</strong> pode haver dificuldade para reconhecer oportunidades de recuar ou abandonar o confronto.</p>
+                    </section>
+                    <section class="raiva-estagio">
+                        <h4>Estágio IV — Descontrolado</h4>
+                        <p>Representa o limite da fúria do personagem.</p>
+                        <p class="raiva-efeito"><strong>Bônus de ataque:</strong> +5 em testes de ataque corpo a corpo.</p>
+                        <p class="raiva-efeito"><strong>Bônus de dano:</strong> +5 no dano de ataques corpo a corpo.</p>
+                        <p class="raiva-efeito"><strong>Redução de dano:</strong> 40% do dano físico recebido.</p>
+                        <p class="raiva-penalidade"><strong>Penalidades:</strong> -5 em testes de Autocontrole e -5 em ações delicadas ou que exijam precisão.</p>
+                        <p class="raiva-narrativa"><strong>Consequência narrativa:</strong> o personagem pode priorizar a ameaça responsável por sua raiva, mesmo quando outra decisão seria mais estratégica.</p>
+                    </section>
+                </div>
+                <p class="nota-capitulo"><strong>Importante:</strong> bônus de ataque, bônus de dano e redução do dano recebido são efeitos diferentes. O bônus de ataque modifica o resultado do teste; o bônus de dano afeta o dano causado; a redução se aplica ao dano físico recebido, conforme as regras de dano do VIPERA.</p>
+
+                <h3>7.3. Progressão da raiva</h3>
+                <p>A raiva pode aumentar gradualmente conforme os acontecimentos da cena. A progressão entre os estágios não precisa ocorrer automaticamente a cada turno: deve considerar a intensidade da situação e a interpretação do Mestre.</p>
+                <p>O sistema não estabelece custo de ativação, duração fixa, gasto de pontos ou testes adicionais obrigatórios. Esses procedimentos não devem ser presumidos como regras oficiais.</p>
+
+                <h3>7.4. Redução da raiva e recuperação do controle</h3>
+                <p>A raiva pode diminuir quando:</p>
+                <ul>
+                    <li>O personagem se afasta da situação que provocou sua fúria.</li>
+                    <li>Uma pessoa de confiança consegue ajudá-lo a recuperar a calma.</li>
+                    <li>O conflito termina.</li>
+                    <li>O personagem recebe tempo para se recompor.</li>
+                    <li>A situação muda de maneira significativa.</li>
+                </ul>
+                <p>A redução é interpretada conforme a cena; não há duração fixa ou procedimento automático estabelecido por esta regra.</p>
+
+                <h3>7.5. Influência narrativa e autonomia do jogador</h3>
+                <p>A raiva influencia o comportamento e pode dificultar decisões ponderadas, mas não retira arbitrariamente o controle do jogador sobre o personagem. Em Descontrolado, o personagem pode agir de maneira mais impulsiva ou ter dificuldade para avaliar a situação; isso não autoriza o Mestre a obrigá-lo a atacar aliados ou realizar qualquer ação sem uma regra específica que permita essa consequência.</p>
+                <p>Os efeitos narrativos devem respeitar a personalidade, a história e as circunstâncias do personagem. O Mestre considera o contexto sem tornar toda ação uma mudança obrigatória de estágio.</p>
+
+                <h3>7.6. Aplicação dos modificadores</h3>
+                <p>Os bônus e as penalidades da raiva são aplicados ao resultado do teste conforme o estágio e a situação. O bônus de dano é aplicado separadamente ao dano causado, e a redução percentual se refere ao dano físico recebido.</p>
+
+                <h3>7.7. Exemplo prático</h3>
+                <div class="exemplo-investigacao">
+                    <p>Durante um confronto, uma personagem presencia o ferimento grave de alguém importante para ela. O Mestre considera a gravidade do acontecimento, a personalidade da personagem e o contexto da cena. Se fizer sentido para a interpretação, ela pode começar no estágio Irritado; novos acontecimentos intensos podem justificar uma progressão gradual, sem que isso aconteça automaticamente a cada turno.</p>
+                    <p>Suponha, apenas para este exemplo hipotético, que a personagem esteja Enfurecida e faça um ataque corpo a corpo. O resultado ilustrativo é:</p>
+                    <div class="raiva-calculo"><strong>1d20 (12) + 2 (bônus fixo) + Atributo (3) + Perícias (2) + bônus de ataque da raiva (3) = 22</strong></div>
+                    <p>Os valores do dado, atributo e perícias são hipotéticos e não representam valores oficiais ou uma dificuldade definida pelo sistema. O +3 da raiva é bônus de ataque, somado ao teste. Separadamente, o estágio Enfurecido concede +2 ao dano do ataque corpo a corpo; esse bônus não é acrescentado ao resultado do teste.</p>
+                    <p>Nesse estágio, testes de Autocontrole e testes que exijam precisão ou concentração também recebem a penalidade de -3. Se a cena mudar, terminar ou alguém de confiança ajudar a personagem a se acalmar, o Mestre pode interpretar a redução da raiva de acordo com o contexto. Mesmo no estágio Descontrolado, a personagem continua sob controle de sua jogadora.</p>
+                </div>
+            </article>
+        </section>
+
+        <section class="pagina" id="pagina-08" aria-label="08. Sistema de Armamentos">
+            <div class="pagina-indice"><span>08</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>08. Sistema de Armamentos</h2>
+
+                <h3>8.1. Introdução aos Armamentos</h3>
+                <p>Este capítulo reúne as armas disponíveis no VIPERA, seus dados de dano e suas margens de crítico. O dano listado corresponde aos dados de dano da arma; os valores de crítico indicam os resultados que ativam um ataque crítico.</p>
+                <p>Não são acrescentados modificadores ou fórmulas de dano além daqueles definidos para cada arma e pelas regras apresentadas aqui.</p>
+
+                <h3>8.2. Armas Improvisadas</h3>
+                <p>Armas improvisadas são objetos que não foram criados originalmente para combate, mas que podem ser utilizados como armas em situações de necessidade. Elas não possuem treinamento específico; o atributo utilizado depende de como o objeto é empregado.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Armas improvisadas: nome, dano e crítico" tabindex="0">
+                    <table class="tabela-armas">
+                        <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead>
+                        <tbody>
+                            <tr><td>Garfo de Cozinha</td><td>1d4</td><td>20</td></tr>
+                            <tr><td>Faca de Cozinha</td><td>1d6</td><td>19–20</td></tr>
+                            <tr><td>Frigideira</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Garrafa de Vidro</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Garrafa Quebrada</td><td>1d6</td><td>19–20</td></tr>
+                            <tr><td>Tesoura</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Martelo</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Chave Inglesa</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Pé de Cabra</td><td>1d10</td><td>20</td></tr>
+                            <tr><td>Taco de Madeira</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Cadeira</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Mesa Pequena</td><td>1d10</td><td>20</td></tr>
+                            <tr><td>Vassoura</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Rodo</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Pá</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Cabo de Vassoura</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Corrente</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Lanterna Pesada</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Controle Remoto</td><td>1d4</td><td>20</td></tr>
+                            <tr><td>Celular</td><td>1d4</td><td>20</td></tr>
+                            <tr><td>Livro Pesado</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Mochila Cheia</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Pedra</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Tijolo</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Extintor de Incêndio</td><td>1d10</td><td>20</td></tr>
+                            <tr><td>Placa de Trânsito</td><td>1d10</td><td>20</td></tr>
+                            <tr><td>Guarda-Chuva</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Skate</td><td>1d8</td><td>20</td></tr>
+                            <tr><td>Bola de Boliche</td><td>1d10</td><td>20</td></tr>
+                            <tr><td>Garrafa Térmica</td><td>1d6</td><td>20</td></tr>
+                            <tr><td>Facão</td><td>1d10</td><td>19–20</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="armas-regras">
+                    <h4>Regras para armas improvisadas</h4>
+                    <ul>
+                        <li>Armas improvisadas não possuem treinamento específico.</li>
+                        <li>O atributo utilizado depende da forma como o objeto é utilizado.</li>
+                        <li>Ataques corpo a corpo normalmente utilizam <strong>FORÇA</strong>.</li>
+                        <li>Objetos arremessados normalmente utilizam <strong>DESTREZA</strong>.</li>
+                        <li>O Mestre pode alterar o dano de um objeto dependendo de seu peso, tamanho ou condição.</li>
+                        <li>Objetos muito pesados ou perigosos podem receber <strong>+1 dado de dano</strong>.</li>
+                        <li>Objetos frágeis podem quebrar após um acerto crítico ou mediante decisão do Mestre.</li>
+                    </ul>
+                </div>
+
+                <h3>8.3. Armas de Fogo</h3>
+                <p>As tabelas a seguir apresentam as armas de fogo por categoria. Os danos e as margens de crítico são os valores próprios de cada arma.</p>
+
+                <h4>Pistolas</h4>
+                <p class="categoria-armas-descricao">Modelos de pistolas listados para consulta, com seus danos e margens de crítico.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Pistolas: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Glock 17</td><td>2d10</td><td>19–20</td></tr><tr><td>Glock 19</td><td>2d10</td><td>19–20</td></tr><tr><td>Beretta 92FS</td><td>2d10</td><td>19–20</td></tr><tr><td>SIG Sauer P226</td><td>2d10</td><td>19–20</td></tr><tr><td>CZ 75</td><td>2d10</td><td>19–20</td></tr><tr><td>FN Five-seveN</td><td>2d8</td><td>19–20</td></tr><tr><td>Colt M1911</td><td>2d12</td><td>19–20</td></tr><tr><td>Desert Eagle</td><td>3d10</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Revólveres</h4>
+                <p class="categoria-armas-descricao">Modelos de revólveres incluídos no catálogo do sistema.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Revólveres: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Smith &amp; Wesson Model 10</td><td>2d10</td><td>19–20</td></tr><tr><td>Ruger GP100</td><td>2d12</td><td>19–20</td></tr><tr><td>Colt Python</td><td>3d10</td><td>19–20</td></tr><tr><td>Smith &amp; Wesson Model 29</td><td>3d12</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Submetralhadoras</h4>
+                <p class="categoria-armas-descricao">Modelos de submetralhadoras incluídos no catálogo do sistema.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Submetralhadoras: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>MP5</td><td>2d10</td><td>19–20</td></tr><tr><td>UMP45</td><td>3d10</td><td>19–20</td></tr><tr><td>MAC-10</td><td>2d10</td><td>20</td></tr><tr><td>PP-19 Bizon</td><td>2d10</td><td>19–20</td></tr><tr><td>P90</td><td>2d10</td><td>19–20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Fuzis de assalto</h4>
+                <p class="categoria-armas-descricao">Modelos de fuzis de assalto incluídos no catálogo do sistema.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Fuzis de assalto: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>AK-47</td><td>3d10</td><td>20</td></tr><tr><td>AK-74</td><td>3d10</td><td>20</td></tr><tr><td>M16A4</td><td>3d10</td><td>19–20</td></tr><tr><td>M4A1</td><td>3d10</td><td>19–20</td></tr><tr><td>HK416</td><td>3d10</td><td>19–20</td></tr><tr><td>SCAR-L</td><td>3d12</td><td>20</td></tr><tr><td>FAMAS</td><td>3d10</td><td>19–20</td></tr><tr><td>AUG</td><td>3d10</td><td>19–20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Fuzis de precisão</h4>
+                <p class="categoria-armas-descricao">Modelos de fuzis de precisão incluídos no catálogo do sistema.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Fuzis de precisão: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Remington 700</td><td>4d10</td><td>19–20</td></tr><tr><td>M24</td><td>4d10</td><td>19–20</td></tr><tr><td>M40</td><td>4d10</td><td>19–20</td></tr><tr><td>Barrett M82</td><td>5d12</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Escopetas</h4>
+                <p class="categoria-armas-descricao">Modelos de escopetas incluídos no catálogo do sistema.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Escopetas: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Remington 870</td><td>4d10</td><td>20</td></tr><tr><td>Mossberg 500</td><td>4d10</td><td>20</td></tr><tr><td>Benelli M4</td><td>4d10</td><td>19–20</td></tr><tr><td>SPAS-12</td><td>5d10</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h3>8.4. Regras de Crítico</h3>
+                <p>Um resultado natural 20 sempre é um crítico. Quando o resultado estiver dentro da margem de crítico da arma, o ataque também é crítico. Os valores <strong>20</strong>, <strong>19–20</strong> e <strong>18–20</strong> representam os resultados que ativam o crítico, conforme a margem indicada na tabela de cada arma.</p>
+                <p>Em um crítico, role novamente os dados de dano da arma e some o resultado ao dano original.</p>
+                <div class="armas-exemplos">
+                    <div><h4>Glock 17</h4><p>Dano normal: <strong>2d10</strong>.</p><p>Dano crítico: <strong>4d10</strong>.</p></div>
+                    <div><h4>Barrett M82</h4><p>Dano normal: <strong>5d12</strong>.</p><p>Dano crítico: <strong>10d12</strong>.</p></div>
+                </div>
+
+                <h3>8.5. Armas Brancas</h3>
+                <p>As armas brancas estão organizadas por categoria para facilitar a consulta. Cada tabela apresenta somente as armas daquela categoria.</p>
+
+                <h4>Facas e adagas</h4>
+                <p class="categoria-armas-descricao">Lâminas curtas e facas listadas nesta categoria.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Facas e adagas: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Estilete</td><td>1d6</td><td>18–20</td></tr><tr><td>Canivete</td><td>1d8</td><td>19–20</td></tr><tr><td>Adaga</td><td>1d10</td><td>19–20</td></tr><tr><td>Faca de Combate</td><td>2d8</td><td>19–20</td></tr><tr><td>Faca Tática</td><td>2d8</td><td>19–20</td></tr><tr><td>Karambit</td><td>2d8</td><td>18–20</td></tr><tr><td>Punhal</td><td>2d8</td><td>19–20</td></tr><tr><td>Kukri</td><td>2d10</td><td>19–20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Espadas</h4>
+                <p class="categoria-armas-descricao">Espadas e armas de lâmina longa incluídas no catálogo.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Espadas: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Espada Curta</td><td>2d8</td><td>19–20</td></tr><tr><td>Sabre</td><td>2d8</td><td>18–20</td></tr><tr><td>Florete</td><td>2d8</td><td>18–20</td></tr><tr><td>Rapieira</td><td>2d8</td><td>18–20</td></tr><tr><td>Espada Longa</td><td>2d10</td><td>19–20</td></tr><tr><td>Katana</td><td>3d10</td><td>19–20</td></tr><tr><td>Montante</td><td>3d12</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Machados</h4>
+                <p class="categoria-armas-descricao">Machados de diferentes tamanhos e configurações listados no sistema.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Machados: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Machadinha</td><td>2d8</td><td>20</td></tr><tr><td>Machado de Combate</td><td>2d10</td><td>19–20</td></tr><tr><td>Machado de Batalha</td><td>3d10</td><td>20</td></tr><tr><td>Machado Grande</td><td>3d12</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Armas de impacto</h4>
+                <p class="categoria-armas-descricao">Armas de impacto incluídas nesta categoria do catálogo.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Armas de impacto: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Soco Inglês</td><td>1d8</td><td>20</td></tr><tr><td>Cassetete</td><td>1d8</td><td>19–20</td></tr><tr><td>Bastão</td><td>1d10</td><td>19–20</td></tr><tr><td>Taco de Beisebol</td><td>2d8</td><td>20</td></tr><tr><td>Martelo de Guerra</td><td>2d10</td><td>20</td></tr><tr><td>Maça</td><td>2d10</td><td>20</td></tr><tr><td>Marreta</td><td>3d10</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Armas de haste</h4>
+                <p class="categoria-armas-descricao">Armas de haste incluídas nesta categoria do catálogo.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Armas de haste: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Lança</td><td>2d8</td><td>19–20</td></tr><tr><td>Tridente</td><td>2d10</td><td>20</td></tr><tr><td>Foice</td><td>2d10</td><td>19–20</td></tr><tr><td>Glaive</td><td>3d10</td><td>20</td></tr><tr><td>Alabarda</td><td>3d12</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h4>Armas pesadas</h4>
+                <p class="categoria-armas-descricao">Armas pesadas incluídas nesta categoria do catálogo.</p>
+                <div class="tabela-armas-wrap" role="region" aria-label="Armas pesadas: nome, dano e crítico" tabindex="0"><table class="tabela-armas">
+                    <thead><tr><th scope="col">Nome</th><th scope="col">Dano</th><th scope="col">Crítico</th></tr></thead><tbody>
+                        <tr><td>Espada de Duas Mãos</td><td>3d10</td><td>20</td></tr><tr><td>Machado de Duas Mãos</td><td>3d12</td><td>20</td></tr><tr><td>Marreta Pesada</td><td>4d10</td><td>20</td></tr><tr><td>Porrete Pesado</td><td>3d12</td><td>20</td></tr>
+                    </tbody></table></div>
+
+                <h3>8.6. Regras de Crítico das Armas Brancas</h3>
+                <p>Um resultado natural 20 sempre é um crítico. Quando o resultado estiver dentro da margem de crítico da arma, o ataque também é crítico. Em um crítico, role novamente os dados de dano da arma e some o resultado ao dano original. As margens <strong>20</strong>, <strong>19–20</strong> e <strong>18–20</strong> são preservadas conforme cada tabela.</p>
+                <div class="armas-exemplos">
+                    <div><h4>Katana</h4><p>Dano normal: <strong>3d10</strong>.</p><p>Dano crítico: <strong>6d10</strong>.</p></div>
+                    <div><h4>Marreta Pesada</h4><p>Dano normal: <strong>4d10</strong>.</p><p>Dano crítico: <strong>8d10</strong>.</p></div>
+                </div>
+            </article>
+        </section>
+
+        <section class="pagina" id="pagina-09" aria-label="09. Ferimentos e Sobrevivência">
+            <div class="pagina-indice"><span>09</span><a class="pagina-voltar" href="#capa">↑ Voltar ao início</a></div>
+            <article class="capitulo-conteudo">
+                <h2>09. Ferimentos e Sobrevivência</h2>
+                <p>Os PV (Pontos de Vida) representam a quantidade de vida que um personagem possui. Quando um personagem sofre dano, ele perde PV de acordo com o dano recebido.</p>
+                <p>Um Ferimento representa uma consequência física adicional que pode permanecer mesmo após a recuperação dos PV. Perder PV e sofrer um Ferimento são coisas distintas: o dano reduz os PV; o Ferimento registra uma lesão. Um Ferimento não substitui o dano. O personagem perde os PV normalmente e, caso a situação determine, também sofre o Ferimento.</p>
+
+                <h3>9.1. Quando um Ferimento é Causado</h3>
+                <p>Um personagem pode sofrer um Ferimento quando:</p>
+                <ul class="ferimentos-condicoes">
+                    <li>Sofrer um Acerto Crítico.</li>
+                    <li>Receber uma quantidade muito alta de dano em um único ataque.</li>
+                    <li>Chegar a 0 PV.</li>
+                    <li>Sofrer um ataque que, pela situação, possa causar uma lesão grave.</li>
+                    <li>Uma habilidade, arma ou efeito determinar que um Ferimento foi causado.</li>
+                </ul>
+                <p class="ferimentos-nota">Essas condições indicam situações em que um Ferimento pode ocorrer. Não há aqui uma quantidade mínima de dano estabelecida nem uma classificação automática do grau do Ferimento.</p>
+
+                <h3>9.2. Graus de Ferimento</h3>
+                <p>Os graus descrevem a gravidade da lesão. Os períodos de recuperação são estimativas gerais; o tempo efetivo depende do ferimento e das circunstâncias, sem prazos rígidos definidos neste capítulo.</p>
+                <div class="ferimentos-graus">
+                    <section class="ferimento-cartao">
+                        <h4>Ferimento I — Leve</h4>
+                        <p>Pequenos cortes, hematomas, contusões, arranhões, queimaduras leves ou torções.</p>
+                        <p>Normalmente não impede o personagem de continuar lutando.</p>
+                        <p class="ferimento-recuperacao"><strong>Recuperação:</strong> algumas horas ou até um descanso adequado.</p>
+                    </section>
+                    <section class="ferimento-cartao ferimento-moderado">
+                        <h4>Ferimento II — Moderado</h4>
+                        <p>Cortes profundos, queimaduras significativas, luxações, perfurações ou lesões musculares.</p>
+                        <p>Pode causar uma penalidade relacionada à região atingida.</p>
+                        <p class="ferimento-recuperacao"><strong>Recuperação:</strong> alguns dias.</p>
+                    </section>
+                    <section class="ferimento-cartao ferimento-grave">
+                        <h4>Ferimento III — Grave</h4>
+                        <p>Fraturas, perfurações profundas, grandes cortes, queimaduras graves ou traumas severos.</p>
+                        <p>Pode impedir determinadas ações e normalmente necessita de tratamento médico.</p>
+                        <p class="ferimento-recuperacao"><strong>Recuperação:</strong> semanas.</p>
+                    </section>
+                    <section class="ferimento-cartao ferimento-critico">
+                        <h4>Ferimento IV — Crítico</h4>
+                        <p>Danos extremamente graves, como traumas severos em órgãos, lesões potencialmente fatais ou mutilações.</p>
+                        <p>Pode colocar a vida do personagem em risco.</p>
+                        <p class="ferimento-recuperacao"><strong>Recuperação:</strong> semanas ou meses, dependendo do ferimento e do tratamento.</p>
+                    </section>
+                </div>
+
+                <h3>9.3. Localização dos Ferimentos</h3>
+                <p>Um Ferimento pode possuir uma região corporal específica. A localização ajuda a determinar suas possíveis consequências, de acordo com a natureza da lesão e a região afetada.</p>
+                <div class="ferimentos-localizacoes" aria-label="Localizações corporais dos ferimentos">
+                    <span>Cabeça</span>
+                    <span>Tronco</span>
+                    <span>Braço Direito</span>
+                    <span>Braço Esquerdo</span>
+                    <span>Perna Direita</span>
+                    <span>Perna Esquerda</span>
+                </div>
+                <div class="ferimentos-exemplo">
+                    <p><strong>Ferimento II — Braço Direito</strong></p>
+                    <p>O personagem sofreu uma fratura no braço direito e possui dificuldade ou incapacidade de utilizá-lo normalmente.</p>
+                </div>
+                <p>As consequências dependem da natureza do ferimento e da região afetada. Não há penalidades numéricas automáticas definidas para cada localização.</p>
+
+                <h3>9.4. Registro e Acompanhamento</h3>
+                <p>Durante a campanha, registrar as informações do Ferimento ajuda o grupo a acompanhar a lesão, sua evolução e seus efeitos na narrativa. Os campos abaixo servem como referência para organizar essas informações:</p>
+                <ul class="ferimentos-registro">
+                    <li>Grau do Ferimento.</li>
+                    <li>Região afetada.</li>
+                    <li>Descrição da lesão.</li>
+                    <li>Estado atual.</li>
+                    <li>Tratamento realizado.</li>
+                    <li>Consequências persistentes.</li>
+                </ul>
+                <p>Esses campos são uma referência de acompanhamento; não alteram a ficha de personagem nem estabelecem novos campos editáveis.</p>
+
+            </article>
+        </section>
+
+        <footer class="rodape">VIPERA — Livro do Sistema</footer>
+    </main>
+</div>
+
+<div class="arquivo-segredos" aria-label="Ornamentos do arquivo">
+    <div class="logo-mark" id="gatilho-margem" role="button" tabindex="0" aria-label="Selo geométrico" aria-expanded="false"><span>V</span></div>
+    <span class="regua-manuscrito" aria-hidden="true"></span>
+    <div class="marginal-mensagem" role="status" aria-live="polite" aria-hidden="true">
+        <span class="segredo-texto"></span>
+        <button class="fechar-mensagem" type="button" aria-label="Fechar mensagem">×</button>
+    </div>
+    <div class="regua-mensagem" role="status" aria-live="polite" aria-hidden="true">
+        <span class="segredo-texto"></span>
+        <button class="fechar-mensagem" type="button" aria-label="Fechar mensagem">×</button>
+    </div>
+</div>
+
+<script>
+/* Navegação astral: os links continuam funcionando sem JavaScript; estes efeitos são apenas aprimoramentos. */
+(() => {
+    const mapa = document.querySelector("#sumario-astral");
+    const pontos = [...mapa.querySelectorAll(".mapa-ponto")];
+    const movimentoReduzido = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const confirmacao = mapa.querySelector("#mapa-confirmacao");
+    const textoConfirmacao = mapa.querySelector("#mapa-confirmacao-texto");
+    const botaoConfirmar = mapa.querySelector("#mapa-confirmar");
+    const botaoCancelar = mapa.querySelector("#mapa-cancelar");
+    let observador;
+    let destinoSelecionado = null;
+    let nivelZoom = 1;
+    const valorZoom = mapa.querySelector(".mapa-zoom-valor");
+    const atualizarZoom = () => {
+        mapa.style.setProperty("--zoom", nivelZoom);
+        valorZoom.textContent = `${Math.round(nivelZoom * 100)}%`;
+    };
+
+    mapa.querySelectorAll(".mapa-controle").forEach(controle => {
+        controle.addEventListener("click", () => {
+            if (controle.dataset.zoom === "aumentar") nivelZoom = Math.min(2.4, nivelZoom + .2);
+            if (controle.dataset.zoom === "diminuir") nivelZoom = Math.max(.8, nivelZoom - .2);
+            if (controle.dataset.zoom === "redefinir") {
+                nivelZoom = 1;
+                mapa.style.setProperty("--foco-x", "50%");
+                mapa.style.setProperty("--foco-y", "50%");
+            }
+            atualizarZoom();
+        });
+    });
+
+    const pausarSeNecessario = () => {
+        const foraDaTela = observador ? !mapa.classList.contains("na-tela") : false;
+        mapa.classList.toggle("pausado", document.visibilityState !== "visible" || foraDaTela);
+    };
+
+    if (!movimentoReduzido.matches) {
+        if ("IntersectionObserver" in window) {
+            observador = new IntersectionObserver(entradas => {
+                const visivel = entradas.some(entrada => entrada.isIntersecting);
+                mapa.classList.toggle("na-tela", visivel);
+                if (visivel && !mapa.dataset.animacaoIniciada) {
+                    mapa.dataset.animacaoIniciada = "true";
+                    mapa.classList.add("animando");
+                }
+                pausarSeNecessario();
+            }, {threshold: .12});
+            observador.observe(mapa);
+        } else {
+            mapa.classList.add("animando", "na-tela");
+        }
+        document.addEventListener("visibilitychange", pausarSeNecessario);
+    }
+
+    pontos.forEach(ponto => {
+        const realcar = () => mapa.classList.add("conexao-ativa");
+        const apagar = () => {
+            if (!mapa.querySelector(".mapa-ponto:hover, .mapa-ponto:focus-visible")) mapa.classList.remove("conexao-ativa");
+        };
+        ponto.addEventListener("pointerenter", realcar);
+        ponto.addEventListener("pointerleave", apagar);
+        ponto.addEventListener("focus", realcar);
+        ponto.addEventListener("blur", apagar);
+        ponto.addEventListener("click", evento => {
+            const destino = document.getElementById(ponto.dataset.capitulo);
+            if (!destino) return;
+            evento.preventDefault();
+            destinoSelecionado = destino;
+            pontos.forEach(item => item.classList.toggle("selecionado", item === ponto));
+            textoConfirmacao.textContent = `${ponto.querySelector(".mapa-nome").textContent} selecionada`;
+            confirmacao.classList.add("visivel");
+            confirmacao.setAttribute("aria-hidden", "false");
+            const posicaoPonto = getComputedStyle(ponto);
+            const campoMapa = mapa.querySelector(".mapa-campo");
+            mapa.style.setProperty("--foco-x", `${parseFloat(posicaoPonto.left) / campoMapa.clientWidth * 100}%`);
+            mapa.style.setProperty("--foco-y", `${parseFloat(posicaoPonto.top) / campoMapa.clientHeight * 100}%`);
+            mapa.classList.add("aproximando");
+        });
+    });
+
+    const tocarSomDeConfirmacao = () => {
+        const AudioContextDisponivel = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextDisponivel) return;
+        const contexto = new AudioContextDisponivel();
+        const agora = contexto.currentTime;
+        [659.25, 880].forEach((frequencia, indice) => {
+            const inicio = agora + indice * .13;
+            const oscilador = contexto.createOscillator();
+            const volume = contexto.createGain();
+            oscilador.type = "sine";
+            oscilador.frequency.setValueAtTime(frequencia, inicio);
+            volume.gain.setValueAtTime(.0001, inicio);
+            volume.gain.exponentialRampToValueAtTime(.075, inicio + .025);
+            volume.gain.exponentialRampToValueAtTime(.0001, inicio + .34);
+            oscilador.connect(volume);
+            volume.connect(contexto.destination);
+            oscilador.start(inicio);
+            oscilador.stop(inicio + .35);
+        });
+        window.setTimeout(() => contexto.close(), 700);
+    };
+
+    botaoCancelar.addEventListener("click", () => {
+        const ponto = mapa.querySelector(".mapa-ponto.selecionado");
+        destinoSelecionado = null;
+        pontos.forEach(item => item.classList.remove("selecionado"));
+        mapa.classList.remove("aproximando");
+        mapa.style.setProperty("--foco-x", "50%");
+        mapa.style.setProperty("--foco-y", "50%");
+        confirmacao.classList.remove("visivel");
+        confirmacao.setAttribute("aria-hidden", "true");
+        if (ponto) ponto.focus();
+    });
+
+    botaoConfirmar.addEventListener("click", () => {
+        const destino = destinoSelecionado;
+        if (!destino) return;
+        destinoSelecionado = null;
+        tocarSomDeConfirmacao();
+        if (location.hash !== "#sumario-astral") history.pushState({viperaMapa: true}, "", "#sumario-astral");
+        history.pushState({viperaCapitulo: true}, "", `#${destino.id}`);
+        destino.setAttribute("tabindex", "-1");
+        destino.focus({preventScroll: true});
+        destino.scrollIntoView({behavior: movimentoReduzido.matches ? "auto" : "smooth", block: "start"});
+        destino.classList.remove("mapa-destino-ativo");
+        void destino.offsetWidth;
+        destino.classList.add("mapa-destino-ativo");
+        window.setTimeout(() => destino.classList.remove("mapa-destino-ativo"), 800);
+        mapa.classList.remove("aproximando");
+        mapa.style.setProperty("--foco-x", "50%");
+        mapa.style.setProperty("--foco-y", "50%");
+        confirmacao.classList.remove("visivel");
+        confirmacao.setAttribute("aria-hidden", "true");
+    });
+
+    window.addEventListener("popstate", () => {
+        mapa.classList.remove("aproximando");
+        if (location.hash === "#sumario-astral") mapa.scrollIntoView({behavior: movimentoReduzido.matches ? "auto" : "smooth", block: "start"});
+    });
+})();
+</script>
+
+<script>
+/* As mensagens são compostas apenas quando cada detalhe é explorado. */
+const mensagens = {
+    margem: [79,32,115,101,103,117,110,100,111,32,102,105,108,104,111,32,115,101,110,116,101,32,115,97,117,100,97,100,101,115,32,100,111,32,112,97,115,115,97,100,111,46],
+    regua: [78,195,163,111,32,97,99,114,101,100,105,116,101,32,110,97,113,117,101,108,101,32,113,117,101,32,115,101,32,100,105,122,32,115,101,114,32,68,101,117,115,46]
+};
+const chaveDescobertas = "vipera-fragmentos-v1";
+const fragmentos = document.querySelector("#fragmentos");
+const textoFragmentos = document.querySelector("#fragmentos-texto");
+const tracoFragmentos = document.querySelector("#fragmentos-traco");
+let descobertos = new Set();
+try {
+    const salvos = JSON.parse(localStorage.getItem(chaveDescobertas) || "[]");
+    if (Array.isArray(salvos)) descobertos = new Set(salvos.filter(id => ["margem", "regua"].includes(id)));
+} catch (erro) {
+    /* O livro continua funcional mesmo se o armazenamento local estiver indisponível. */
+}
+const atualizarRegistro = (animar = false) => {
+    const total = descobertos.size;
+    fragmentos.hidden = total === 0;
+    textoFragmentos.textContent = `${total}/2 fragmentos descobertos`;
+    tracoFragmentos.style.setProperty("--progresso", `${total * 50}%`);
+    if (animar) {
+        fragmentos.classList.remove("progresso-novo");
+        void fragmentos.offsetWidth;
+        fragmentos.classList.add("progresso-novo");
+    }
+};
+const registrarDescoberta = id => {
+    if (descobertos.has(id)) return;
+    descobertos.add(id);
+    try {
+        localStorage.setItem(chaveDescobertas, JSON.stringify([...descobertos]));
+    } catch (erro) {
+        /* A descoberta permanece contabilizada durante esta visita. */
+    }
+    atualizarRegistro(true);
+};
+const revelar = (alvo, codigos, botao, id) => {
+    alvo.querySelector(".segredo-texto").textContent = String.fromCodePoint(...codigos);
+    alvo.classList.add("aberta");
+    alvo.setAttribute("aria-hidden", "false");
+    if (botao) botao.setAttribute("aria-expanded", "true");
+    registrarDescoberta(id);
+};
+const fecharMensagem = (alvo, gatilho) => {
+    alvo.classList.remove("aberta");
+    alvo.setAttribute("aria-hidden", "true");
+    if (gatilho) gatilho.setAttribute("aria-expanded", "false");
+};
+document.querySelectorAll(".fechar-mensagem").forEach(botao => {
+    botao.addEventListener("click", () => {
+        const mensagem = botao.closest(".marginal-mensagem, .regua-mensagem");
+        const gatilho = mensagem.classList.contains("marginal-mensagem") ? document.querySelector("#gatilho-margem") : null;
+        fecharMensagem(mensagem, gatilho);
+        if (gatilho) gatilho.focus();
+    });
+});
+atualizarRegistro();
+
+/* Primeiro vestígio: mantenha pressionado o selo geométrico do arquivo ornamental. */
+const ornamento = document.querySelector("#gatilho-margem");
+const mensagemMargem = document.querySelector(".marginal-mensagem");
+let temporizadorMargem;
+let margemRevelada = false;
+const cancelarMargem = () => clearTimeout(temporizadorMargem);
+ornamento.addEventListener("pointerdown", (evento) => {
+    if (margemRevelada) return;
+    evento.preventDefault();
+    cancelarMargem();
+    temporizadorMargem = setTimeout(() => {
+        margemRevelada = true;
+        revelar(mensagemMargem, mensagens.margem, ornamento, "margem");
+    }, 1700);
+});
+["pointerup", "pointerleave", "pointercancel"].forEach(tipo => ornamento.addEventListener(tipo, cancelarMargem));
+ornamento.addEventListener("keydown", (evento) => {
+    if ((evento.key === "Enter" || evento.key === " ") && !margemRevelada) {
+        evento.preventDefault();
+        margemRevelada = true;
+        revelar(mensagemMargem, mensagens.margem, ornamento, "margem");
+    }
+});
+
+/* Segundo vestígio: percorra a régua ornamental do arquivo, da esquerda para a direita. */
+const regua = document.querySelector(".regua-manuscrito");
+const mensagemRegua = document.querySelector(".regua-mensagem");
+let inicioPercurso = null;
+let reguaRevelada = false;
+regua.addEventListener("pointerdown", (evento) => {
+    inicioPercurso = evento.clientX;
+});
+regua.addEventListener("pointerup", (evento) => {
+    if (reguaRevelada || inicioPercurso === null) return;
+    const limites = regua.getBoundingClientRect();
+    const percorreuDaEsquerda = inicioPercurso <= limites.left + limites.width * .2;
+    const terminouADireita = evento.clientX >= limites.left + limites.width * .8;
+    if (percorreuDaEsquerda && terminouADireita) {
+        reguaRevelada = true;
+        revelar(mensagemRegua, mensagens.regua, null, "regua");
+    }
+    inicioPercurso = null;
+});
+regua.addEventListener("pointercancel", () => { inicioPercurso = null; });
+
+/* A abertura acontece a cada entrada, respeitando a preferência por movimento reduzido. */
+const abertura = document.querySelector("#abertura");
+if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    abertura.classList.add("encerrada");
+} else {
+    abertura.classList.add("em-curso");
+    window.setTimeout(() => abertura.classList.add("encerrada"), 3600);
+    window.setTimeout(() => abertura.remove(), 4600);
+}
+</script>
+
+<script>
+/* Player de áudio local: o arquivo MP3 deve estar na pasta do projeto. */
+(() => {
+    const botaoMusica = document.querySelector("#controle-musica");
+    const audio = new Audio(encodeURI("Beethoven - Moonlight Sonata 1st Movement - (320 Kbps).mp3"));
+    audio.loop = true;
+    audio.preload = "none";
+
+    botaoMusica.addEventListener("click", async () => {
+        if (!audio.paused) {
+            audio.pause();
+            audio.currentTime = 0;
+            botaoMusica.setAttribute("aria-pressed", "false");
+            botaoMusica.setAttribute("aria-label", "Tocar música local");
+            botaoMusica.textContent = "♫ Som: off";
+            return;
+        }
+
+        try {
+            await audio.play();
+            botaoMusica.setAttribute("aria-pressed", "true");
+            botaoMusica.setAttribute("aria-label", "Parar música local");
+            botaoMusica.textContent = "♫ Som: on";
+        } catch (erro) {
+            botaoMusica.setAttribute("aria-pressed", "false");
+            botaoMusica.setAttribute("aria-label", "Tocar música local");
+            botaoMusica.textContent = "♫ Som: off";
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
